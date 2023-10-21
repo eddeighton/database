@@ -2,12 +2,12 @@ __pycache__
 build/
 bin
 data/components/common/__pycache__
-tests/database/basic/database/
-tests/database/advanced/database/
-tests/database/multi_stage_base/database/
-tests/database/basic/data/
-tests/database/advanced/data/
-tests/database/multi_stage_base/data/
+tests/basic/database/
+tests/advanced/database/
+tests/multi_stage_base/database/
+tests/basic/data/
+tests/advanced/data/
+tests/multi_stage_base/data/
 deprecated/
 
 .vs*
