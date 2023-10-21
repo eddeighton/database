@@ -541,8 +541,9 @@ public:
     using ObjectPartVector = std::vector< ObjectPart::Ptr >;
     using ConversionMap = std::map< ObjectPartPair, ObjectPartVector, CountedObjectPairComparator< ObjectPartPair > >;
 
-    ConversionMap m_conversions;
-    ConversionMap m_base_conversions;
+    ConversionMap              m_conversions;
+    ConversionMap              m_base_conversions;
+    std::vector< std::string > m_includes;
 };
 
 inline std::string toConstRef( const std::string& strType )

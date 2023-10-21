@@ -61,7 +61,7 @@ add_executable( db_advanced_test
                 ${DATABASE_GENERATED_FILES} 
                 ${DATABASE_GENERATED_STAGE_FILES} 
 
-                ${MEGA_UNIT_TESTS} 
+                ${DB_ADVANCED_UNIT_TESTS} 
                 ${ADVANCED_DIR}/main.cpp 
                 )
 

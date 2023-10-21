@@ -74,7 +74,7 @@ void writeStageData( const boost::filesystem::path& dataDir, model::Schema::Ptr 
     nlohmann::json data( { { "sources", nlohmann::json::array() },
                            { "stages", nlohmann::json::array() },
                            { "schema_version", pSchema->m_schemaHash.toHexString() },
-                           { "includes", nlohmann::json::array() }
+                           { "includes", pSchema->m_includes }
                            
                            } );
 
@@ -1215,7 +1215,7 @@ void writeViewData( const boost::filesystem::path& dataDir,
                                                          { "constructors", nlohmann::json::array() },
                                                          { "interfaces", nlohmann::json::array() },
                                                          { "casts", nlohmann::json::array() },
-                                                         { "includes", nlohmann::json::array() } } );
+                                                         { "includes", pSchema->m_includes } } );
 
         writeConversions( stage, pSchema, pStage );
 
@@ -1261,7 +1261,7 @@ void writeDataData( const boost::filesystem::path& dataDir,
                            { "base_conversions", nlohmann::json::array() },
                            { "up_casts", nlohmann::json::array() },
                            { "functions", nlohmann::json::array() },
-                           { "includes", nlohmann::json::array() } } );
+                           { "includes", pSchema->m_includes } } );
 
     data[ "guard" ] = "DATABASE_DATA_GUARD_4_APRIL_2022";
 

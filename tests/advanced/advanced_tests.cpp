@@ -17,20 +17,19 @@
 //  NEGLIGENCE) OR STRICT LIABILITY, EVEN IF COPYRIGHT OWNERS ARE ADVISED
 //  OF THE POSSIBILITY OF SUCH DAMAGES.
 
-
-#include "database/environment_build.hpp"
-
-#include "mega/values/compilation/sources.hpp"
-
-#include "database/model/FirstStage.hxx"
-#include "database/model/SecondStage.hxx"
-#include "database/model/ThirdStage.hxx"
-#include "database/model/FourthStage.hxx"
-
-#include "database/model/manifest.hxx"
-#include "database/model/environment.hxx"
-
+#include "database/environment.hxx"
+#include "database/directories.hpp"
+#include "database/sources.hpp"
 #include "database/serialisation.hpp"
+
+#include "database/FirstStage.hxx"
+#include "database/SecondStage.hxx"
+#include "database/ThirdStage.hxx"
+#include "database/FourthStage.hxx"
+#include "database/manifest.hxx"
+#include "database/environment.hxx"
+
+#include "../environment_test.hpp"
 
 #include "common/file.hpp"
 #include "common/string.hpp"
@@ -47,21 +46,22 @@
 class FirstDBTest : public ::testing::Test
 {
 public:
-    boost::filesystem::path                       m_tempDir;
-    std::unique_ptr< mega::compiler::Directories > m_pDirectories;
-    std::unique_ptr< mega::io::BuildEnvironment > m_pEnvironment;
+    using Env = mega::io::TestEnvironment< mega::io::Environment >;
+    boost::filesystem::path                  m_tempDir;
+    std::unique_ptr< mega::io::Directories > m_pDirectories;
+    std::unique_ptr< Env >                   m_pEnvironment;
 
     virtual void SetUp() override
     {
         m_tempDir = boost::filesystem::temp_directory_path() / "FirstDBTest" / common::uuid();
         boost::filesystem::create_directories( m_tempDir );
 
-        m_pDirectories = std::make_unique< mega::compiler::Directories >(
-            mega::compiler::Directories{ m_tempDir, m_tempDir, "", "" } );
-        m_pEnvironment = std::make_unique< mega::io::BuildEnvironment >( *m_pDirectories );
+        m_pDirectories
+            = std::make_unique< mega::io::Directories >( mega::io::Directories{ m_tempDir, m_tempDir, "", "" } );
+        m_pEnvironment = std::make_unique< Env >( *m_pDirectories );
 
         std::vector< boost::filesystem::path > componentInfoPaths;
-        const mega::io::Manifest               manifest( *m_pEnvironment, componentInfoPaths );
+        const mega::io::Manifest               manifest( *m_pEnvironment, m_tempDir, componentInfoPaths );
         const mega::io::manifestFilePath       projectManifestPath = m_pEnvironment->project_manifest();
         manifest.save_temp( *m_pEnvironment, projectManifestPath );
         m_pEnvironment->temp_to_real( projectManifestPath );
@@ -78,6 +78,4 @@ TEST_F( FirstDBTest, BasicTypes )
 {
     using namespace FirstStage;
     using namespace FirstStage::TestNamespace;
-
-    
 }

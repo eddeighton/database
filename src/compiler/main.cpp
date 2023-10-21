@@ -127,7 +127,8 @@ void calculateOutputFiles( const db::schema::Schema& schema, OutputFiles& output
                 outputFiles.sourceFiles.push_back( os.str() );
             }
         }
-        void operator()( const db::schema::Namespace& namespace_ ) const {}
+        void operator()( const db::schema::Namespace& ) const {}
+        void operator()( const db::schema::Include& ) const {}
     } visitor( outputFiles );
 
     for( const auto& element : schema.m_elements )
@@ -228,8 +229,8 @@ int main( int argc, const char* argv[] )
             using Path       = boost::filesystem::path;
             using PathVector = std::vector< Path >;
 
-            const Path injaFolderPath   = inputStringToPath( templatesDir );
-            const Path libPath          = inputStringToPath( libDir );
+            const Path injaFolderPath = inputStringToPath( templatesDir );
+            const Path libPath        = inputStringToPath( libDir );
 
             // const boost::dll::fs::path compilerFilePath = boost::dll::program_location();
             // const Path                 installationPath = compilerFilePath.parent_path();
@@ -241,9 +242,11 @@ int main( int argc, const char* argv[] )
             VERIFY_RTE_MSG(
                 boost::filesystem::exists( libPath ), "Failed to find lib folder at: " << libPath.string() );
 
-            const Path outputAPIFolderPath = boost::filesystem::edsCannonicalise( boost::filesystem::absolute( outputAPIDir ) );
-            const Path outputSrcFolderPath = boost::filesystem::edsCannonicalise( boost::filesystem::absolute( outputSrcDir ) );
-            const Path dataFolderPath      = boost::filesystem::edsCannonicalise( boost::filesystem::absolute( dataDir ) );
+            const Path outputAPIFolderPath
+                = boost::filesystem::edsCannonicalise( boost::filesystem::absolute( outputAPIDir ) );
+            const Path outputSrcFolderPath
+                = boost::filesystem::edsCannonicalise( boost::filesystem::absolute( outputSrcDir ) );
+            const Path dataFolderPath = boost::filesystem::edsCannonicalise( boost::filesystem::absolute( dataDir ) );
 
             if( !boost::filesystem::exists( outputAPIFolderPath ) )
             {

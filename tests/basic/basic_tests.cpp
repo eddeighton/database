@@ -17,17 +17,18 @@
 //  NEGLIGENCE) OR STRICT LIABILITY, EVEN IF COPYRIGHT OWNERS ARE ADVISED
 //  OF THE POSSIBILITY OF SUCH DAMAGES.
 
+#include "database/environment.hxx"
+#include "database/directories.hpp"
+#include "database/sources.hpp"
+#include "database/BasicStage.hxx"
+#include "database/SecondStage.hxx"
+#include "database/ThirdStage.hxx"
+#include "database/FourthStage.hxx"
+#include "database/manifest.hxx"
+#include "database/environment.hxx"
+#include "database/serialisation.hpp"
 
-
-#include "database/api/environment_build.hpp"
-
-#include "database/api/BasicStage.hxx"
-#include "database/api/SecondStage.hxx"
-#include "database/api/ThirdStage.hxx"
-#include "database/api/FourthStage.hxx"
-#include "database/api/manifest.hxx"
-#include "database/api/environment.hxx"
-#include "database/api/serialisation.hpp"
+#include "../environment_test.hpp"
 
 #include "common/file.hpp"
 #include "common/string.hpp"
@@ -44,21 +45,22 @@
 class BasicDBTest : public ::testing::Test
 {
 public:
-    boost::filesystem::path                        m_tempDir;
-    std::unique_ptr< mega::compiler::Directories > m_pDirectories;
-    std::unique_ptr< mega::io::BuildEnvironment >  m_pEnvironment;
+    using Env = mega::io::TestEnvironment< mega::io::Environment >;
+    boost::filesystem::path                  m_tempDir;
+    std::unique_ptr< mega::io::Directories > m_pDirectories;
+    std::unique_ptr< Env >                   m_pEnvironment;
 
     virtual void SetUp() override
     {
         m_tempDir = boost::filesystem::temp_directory_path() / "BasicDBTest" / common::uuid();
         boost::filesystem::create_directories( m_tempDir );
 
-        m_pDirectories = std::make_unique< mega::compiler::Directories >(
-            mega::compiler::Directories{ m_tempDir, m_tempDir, "", "" } );
-        m_pEnvironment = std::make_unique< mega::io::BuildEnvironment >( *m_pDirectories );
+        m_pDirectories
+            = std::make_unique< mega::io::Directories >( mega::io::Directories{ m_tempDir, m_tempDir, "", "" } );
+        m_pEnvironment = std::make_unique< Env >( *m_pDirectories );
 
         std::vector< boost::filesystem::path > componentInfoPaths;
-        const mega::io::Manifest               manifest( *m_pEnvironment, componentInfoPaths );
+        const mega::io::Manifest               manifest( *m_pEnvironment, m_tempDir, componentInfoPaths );
         const mega::io::manifestFilePath       projectManifestPath = m_pEnvironment->project_manifest();
         manifest.save_temp( *m_pEnvironment, projectManifestPath );
         m_pEnvironment->temp_to_real( projectManifestPath );

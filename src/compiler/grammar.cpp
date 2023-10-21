@@ -60,7 +60,7 @@ struct error_handler
     void operator()( Iterator, Iterator, Iterator err_pos, boost::spirit::info const& what ) const
     {
         const int line = boost::spirit::get_line( err_pos );
-        if ( line != -1 )
+        if( line != -1 )
             errorStream << '(' << line << ')';
         else
             errorStream << "( unknown )";
@@ -401,12 +401,48 @@ ParseResult parse( const std::string& strInput, Namespace& namespace_, std::ostr
 } // namespace db::schema
 
 // clang-format off
+BOOST_FUSION_ADAPT_STRUCT( db::schema::Include,
+    ( std::string, m_path )  )
+// clang-format on
+
+namespace db::schema
+{
+
+template < typename Iterator >
+class IncludeGrammar : public boost::spirit::qi::grammar< Iterator, SkipGrammar< Iterator >, Include() >
+{
+public:
+    IncludeGrammar()
+        : IncludeGrammar::base_type( m_main_rule, "Include" )
+    {
+        using namespace boost::spirit;
+        using namespace boost::spirit::qi;
+        using boost::spirit::qi::eoi;
+        using namespace boost::phoenix;
+
+        // clang-format off
+        m_main_rule = lit( "include(" ) > +( char_ - '(' - ')' )[ push_back( at_c< 0 >( _val ), qi::_1 ) ] >> lit( ')' );
+        // clang-format on
+    }
+
+    boost::spirit::qi::rule< Iterator, SkipGrammar< Iterator >, Include() > m_main_rule;
+};
+
+ParseResult parse( const std::string& strInput, Include& include_, std::ostream& errorStream )
+{
+    return parse_impl< IncludeGrammar >( strInput, include_, errorStream );
+}
+
+} // namespace db::schema
+
+// clang-format off
 BOOST_FUSION_ADAPT_STRUCT( db::schema::Schema,
     ( std::vector< db::schema::SchemaVariant >, m_elements )  )
 // clang-format on
 
 namespace db::schema
 {
+
 template < typename Iterator >
 class SchemaGrammar : public boost::spirit::qi::grammar< Iterator, SkipGrammar< Iterator >, Schema() >
 {
@@ -420,12 +456,13 @@ public:
         using namespace boost::phoenix;
 
         // clang-format off
-                m_main_rule = *( m_grammar_stage | m_grammar_namespace )[ push_back( at_c< 0 >( _val ), qi::_1 ) ];
+        m_main_rule = *( m_grammar_stage | m_grammar_namespace | m_grammar_include )[ push_back( at_c< 0 >( _val ), qi::_1 ) ];
         // clang-format on
     }
 
     StageGrammar< Iterator >                                               m_grammar_stage;
     NamespaceGrammar< Iterator >                                           m_grammar_namespace;
+    IncludeGrammar< Iterator >                                             m_grammar_include;
     boost::spirit::qi::rule< Iterator, SkipGrammar< Iterator >, Schema() > m_main_rule;
 };
 
@@ -451,7 +488,7 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Type& type )
 {
     using namespace db::schema;
     os << type.m_idList;
-    if ( !type.m_children.empty() )
+    if( !type.m_children.empty() )
     {
         os << '<';
         common::delimit( type.m_children.begin(), type.m_children.end(), ",", os );
@@ -486,7 +523,7 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Stage& stage )
         }
     };
     StageElementPrinter printer( os );
-    for ( const db::schema::StageElementVariant& file : stage.m_elements )
+    for( const db::schema::StageElementVariant& file : stage.m_elements )
     {
         boost::apply_visitor( printer, file );
     }
@@ -497,7 +534,7 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Property& property
 {
     using namespace db::schema;
     os << property.m_type << property.m_name;
-    if ( property.m_optFile.has_value() )
+    if( property.m_optFile.has_value() )
         os << " -> " << property.m_optFile.value();
     return os;
 }
@@ -505,12 +542,12 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Object& object )
 {
     using namespace db::schema;
     os << object.m_name;
-    if ( object.m_optInheritance.has_value() )
+    if( object.m_optInheritance.has_value() )
         os << " : " << object.m_optInheritance.value();
     os << " -> ";
     common::delimit( object.m_files.begin(), object.m_files.end(), ",", os );
     os << "\n{\n";
-    for ( const Property& property : object.m_properties )
+    for( const Property& property : object.m_properties )
     {
         os << property << "\n";
     }
@@ -534,11 +571,17 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Namespace& namespa
 
     os << namespace_.m_name;
     os << "\n{\n";
-    for ( const NamespaceVariant& element : namespace_.m_elements )
+    for( const NamespaceVariant& element : namespace_.m_elements )
     {
         boost::apply_visitor( printer, element );
     }
     os << "\n}\n";
+    return os;
+}
+std::ostream& operator<<( std::ostream& os, const db::schema::Include& include_ )
+{
+    using namespace db::schema;
+    os << include_.m_path;
     return os;
 }
 std::ostream& operator<<( std::ostream& os, const db::schema::Schema& schema )
@@ -553,10 +596,11 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Schema& schema )
         }
         void operator()( const Stage& stage ) const { os << stage; }
         void operator()( const Namespace& namespace_ ) const { os << namespace_; }
+        void operator()( const Include& include_ ) const { os << include_; }
     };
     SchemaVariantPrinter printer( os );
 
-    for ( const SchemaVariant& element : schema.m_elements )
+    for( const SchemaVariant& element : schema.m_elements )
     {
         boost::apply_visitor( printer, element );
     }

@@ -719,6 +719,10 @@ struct SchemaVariantVisitor : boost::static_visitor< void >
     {
     }
 
+    void operator()( const schema::Include& include ) const
+    {
+        pSchema->m_includes.push_back( include.m_path );
+    }
     void operator()( const schema::Stage& stage ) const
     {
         Stage::Ptr pStage = std::make_shared< Stage >( mapping.counter );

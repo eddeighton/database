@@ -37,6 +37,9 @@ set( DB_UNIT_TESTS_DIR ${DB_TEST_DIR}/unit_tests )
 
 set( DB_UNIT_TESTS
 	${DB_UNIT_TESTS_DIR}/schema_grammar_tests.cpp
+	${DB_UNIT_TESTS_DIR}/component_type_tests.cpp
+	${DB_UNIT_TESTS_DIR}/manifest_tests.cpp
+	${DB_UNIT_TESTS_DIR}/database_tests.cpp
 	${DB_UNIT_TESTS_DIR}/main_test_runner.cpp
 	)
 

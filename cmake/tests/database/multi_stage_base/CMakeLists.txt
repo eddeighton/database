@@ -61,7 +61,7 @@ add_executable( multistage_tests
                 ${DATABASE_GENERATED_FILES} 
                 ${DATABASE_GENERATED_STAGE_FILES} 
 
-                ${MEGA_UNIT_TESTS} 
+                ${DB_MULTISTAGE_UNIT_TESTS} 
                 ${MULTI_STAGE_DIR}/main.cpp 
                 )
 

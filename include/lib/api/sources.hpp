@@ -57,6 +57,7 @@ protected:
 class SourceFilePath : public FilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
 protected:
     SourceFilePath( const boost::filesystem::path& filePath )
@@ -80,6 +81,7 @@ class manifestFilePath : public SourceFilePath
 {
     friend class Environment;
     friend class BuildEnvironment;
+    friend class Manifest;
     manifestFilePath( const boost::filesystem::path& filePath )
         : SourceFilePath( filePath )
     {
@@ -102,6 +104,7 @@ public:
 class megaFilePath : public SourceFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
     megaFilePath( const boost::filesystem::path& filePath )
         : SourceFilePath( filePath )
     {
@@ -124,6 +127,7 @@ public:
 class cppFilePath : public SourceFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     cppFilePath( const boost::filesystem::path& filePath )
         : SourceFilePath( filePath )
@@ -147,6 +151,7 @@ public:
 class pyFilePath : public SourceFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     pyFilePath( const boost::filesystem::path& filePath )
         : SourceFilePath( filePath )
@@ -170,6 +175,7 @@ public:
 class schFilePath : public SourceFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     schFilePath( const boost::filesystem::path& filePath )
         : SourceFilePath( filePath )
@@ -193,6 +199,7 @@ public:
 class BuildFilePath : public FilePath
 {
     friend class Environment;
+    friend class Manifest;
 
 protected:
     BuildFilePath( const boost::filesystem::path& filePath )
@@ -215,6 +222,7 @@ public:
 class ComponentListingFilePath : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     ComponentListingFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -237,6 +245,7 @@ public:
 class CompilationFilePath : public BuildFilePath
 {
     friend class Environment;
+    friend class Manifest;
 
     CompilationFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -260,6 +269,7 @@ public:
 class GeneratedHPPSourceFilePath : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     GeneratedHPPSourceFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -283,6 +293,7 @@ public:
 class GeneratedCPPSourceFilePath : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     GeneratedCPPSourceFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -306,6 +317,7 @@ public:
 class PrecompiledHeaderFile : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     PrecompiledHeaderFile( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -329,6 +341,7 @@ public:
 class ObjectFilePath : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     ObjectFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -352,6 +365,7 @@ public:
 class ComponentFilePath : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     ComponentFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )
@@ -374,6 +388,7 @@ public:
 class MapFilePath : public BuildFilePath
 {
     friend class BuildEnvironment;
+    friend class Manifest;
 
     MapFilePath( const boost::filesystem::path& filePath )
         : BuildFilePath( filePath )

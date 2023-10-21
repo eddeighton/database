@@ -143,9 +143,14 @@ struct Namespace
 
 ParseResult parse( const std::string& strInput, Namespace& namespace_, std::ostream& errorStream );
 
-ParseResult parse( const std::string& strInput, Namespace& namespace_, std::ostream& errorStream );
+struct Include
+{
+    std::string m_path;
+};
 
-using SchemaVariant = boost::variant< Stage, Namespace >;
+ParseResult parse( const std::string& strInput, Include& include_, std::ostream& errorStream );
+
+using SchemaVariant = boost::variant< Stage, Namespace, Include >;
 struct Schema
 {
 public:

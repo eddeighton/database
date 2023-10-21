@@ -51,7 +51,7 @@ namespace mega::io
         initialiseLookupTables();
     }
 
-    Manifest::Manifest( const Environment& environment,
+    Manifest::Manifest( const Environment& environment, const boost::filesystem::path& srcDirectory,
                         const std::vector< boost::filesystem::path >& componentInfos )
     {
         ObjectInfo::FileID compilationFileID = 0;
@@ -93,7 +93,7 @@ namespace mega::io
 {% if source.type != "manifest" %}
                 if( filePath.extension() == ".{{ source.type }}" )
                 {
-                    {{ source.type }}FilePath sourceFilePath = environment.{{ source.type }}FilePath_fromPath( filePath );
+                    {{ source.type }}FilePath sourceFilePath = boost::filesystem::relative( filePath, srcDirectory );
 {% if source.type == "mega" %}
                     m_megaSourceFiles.push_back( sourceFilePath );
 {% endif %}

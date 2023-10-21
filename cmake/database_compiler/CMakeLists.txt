@@ -62,25 +62,30 @@ set( MEGA_DATABASE_COMPILER
 set( MEGA_DATABASE_LIB_HEADERS
     ${DB_API_DIR}/lib/api/api.hpp
     ${DB_API_DIR}/lib/api/archive.hpp
+    ${DB_API_DIR}/lib/api/component_info.hpp
+    ${DB_API_DIR}/lib/api/component_type.hpp
     ${DB_API_DIR}/lib/api/data_pointer.hpp
     ${DB_API_DIR}/lib/api/data_variant.hpp
+    ${DB_API_DIR}/lib/api/directories.hpp
     ${DB_API_DIR}/lib/api/exception.hpp
     ${DB_API_DIR}/lib/api/file_header.hpp
-    ${DB_API_DIR}/lib/api/file.hpp
     ${DB_API_DIR}/lib/api/file_store.hpp
     ${DB_API_DIR}/lib/api/file_system.hpp
+    ${DB_API_DIR}/lib/api/file.hpp
     ${DB_API_DIR}/lib/api/generics.hpp
     ${DB_API_DIR}/lib/api/loader.hpp
     ${DB_API_DIR}/lib/api/manifest_data.hpp
-    ${DB_API_DIR}/lib/api/object.hpp
     ${DB_API_DIR}/lib/api/object_info.hpp
     ${DB_API_DIR}/lib/api/object_loader.hpp
+    ${DB_API_DIR}/lib/api/object.hpp
     ${DB_API_DIR}/lib/api/serialisation.hpp
+    ${DB_API_DIR}/lib/api/sources.hpp
     ${DB_API_DIR}/lib/api/storer.hpp
 )
 
 set( MEGA_DATABASE_LIB_SRC
     ${DB_API_DIR}/lib/src/archive.cpp
+    ${DB_API_DIR}/lib/src/component_type.cpp
     ${DB_API_DIR}/lib/src/file.cpp
     ${DB_API_DIR}/lib/src/loader.cpp
     ${DB_API_DIR}/lib/src/object.cpp
@@ -110,7 +115,7 @@ link_inja( database_compiler )
 
 link_common( database_compiler ) 
 
-install( FILES ${MEGA_DATABASE_TEMPLATES} DESTINATION bin/templates )
-install( FILES ${MEGA_DATABASE_LIB_HEADERS} DESTINATION bin/lib/include )
-install( FILES ${MEGA_DATABASE_LIB_SRC} DESTINATION bin/lib/src )
+install( FILES ${MEGA_DATABASE_TEMPLATES} DESTINATION templates )
+install( FILES ${MEGA_DATABASE_LIB_HEADERS} DESTINATION lib/api )
+install( FILES ${MEGA_DATABASE_LIB_SRC} DESTINATION lib/src )
 install( TARGETS database_compiler DESTINATION bin)

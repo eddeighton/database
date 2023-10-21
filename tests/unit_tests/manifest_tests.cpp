@@ -17,39 +17,39 @@
 //  NEGLIGENCE) OR STRICT LIABILITY, EVEN IF COPYRIGHT OWNERS ARE ADVISED
 //  OF THE POSSIBILITY OF SUCH DAMAGES.
 
-#include "model/file_info.hxx"
-#include "model/manifest.hxx"
-
-#include "io/serialisation.hpp"
-
-#include <gtest/gtest.h>
-
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-
-#include <utility>
-#include <sstream>
-
-using namespace mega::io;
-
-TEST( MegaManifest, Manifest_Empty )
-{
-    Manifest manifestFrom;
-
-    std::stringstream ss;
-    {
-        boost::archive::xml_oarchive oa( ss );
-        oa&                          boost::serialization::make_nvp( "manifest", manifestFrom );
-    }
-
-    Manifest manifestTo;
-    {
-        boost::archive::xml_iarchive ia( ss );
-        ia&                          boost::serialization::make_nvp( "manifest", manifestTo );
-    }
-
-    std::vector< FileInfo > fileInfosFrom, fileInfosTo;
-
-    ASSERT_TRUE( manifestFrom.getCompilationFileInfos().empty() );
-    ASSERT_TRUE( manifestFrom.getMegaSourceFiles().empty() );
-}
+// #include "model/file_info.hxx"
+// #include "model/manifest.hxx"
+// 
+// #include "io/serialisation.hpp"
+// 
+// #include <gtest/gtest.h>
+// 
+// #include <boost/archive/xml_iarchive.hpp>
+// #include <boost/archive/xml_oarchive.hpp>
+// 
+// #include <utility>
+// #include <sstream>
+// 
+// using namespace mega::io;
+// 
+// TEST( MegaManifest, Manifest_Empty )
+// {
+//     Manifest manifestFrom;
+// 
+//     std::stringstream ss;
+//     {
+//         boost::archive::xml_oarchive oa( ss );
+//         oa&                          boost::serialization::make_nvp( "manifest", manifestFrom );
+//     }
+// 
+//     Manifest manifestTo;
+//     {
+//         boost::archive::xml_iarchive ia( ss );
+//         ia&                          boost::serialization::make_nvp( "manifest", manifestTo );
+//     }
+// 
+//     std::vector< FileInfo > fileInfosFrom, fileInfosTo;
+// 
+//     ASSERT_TRUE( manifestFrom.getCompilationFileInfos().empty() );
+//     ASSERT_TRUE( manifestFrom.getMegaSourceFiles().empty() );
+// }

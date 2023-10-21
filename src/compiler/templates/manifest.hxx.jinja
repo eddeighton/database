@@ -65,7 +65,8 @@ namespace mega::io
 
         // Construct a manifest from the source and build directory by
         // recursively analysing existing source listing files.
-        Manifest( const Environment& environment, const std::vector< boost::filesystem::path >& sourceListings );
+        Manifest( const Environment& environment, const boost::filesystem::path& srcDirectory, 
+            const std::vector< boost::filesystem::path >& sourceListings );
 
         File::PtrCst loadFile( const Environment& environment, mega::io::FileStore& fileStore, 
             const SourceFilePath& sourceFile, FileInfo::Stage stage, FileInfo::Type fileType ) const;
