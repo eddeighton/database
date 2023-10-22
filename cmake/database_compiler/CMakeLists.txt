@@ -92,7 +92,11 @@ set( MEGA_DATABASE_LIB_SRC
     ${DB_API_DIR}/lib/src/storer.cpp
 )
 
+add_library( database_lib INTERFACE ${MEGA_DATABASE_LIB_HEADERS} ${MEGA_DATABASE_LIB_SRC} )
+
 add_library( database_compiler ${MEGA_DATABASE_COMPILER} )
+
+add_dependencies( database_compiler database_lib )
 
 set_target_properties( database_compiler PROPERTIES FOLDER database )
 

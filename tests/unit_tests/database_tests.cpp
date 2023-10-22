@@ -21,15 +21,15 @@
 #include <gtest/gtest.h>
 
 // #include "database/serialisation.hpp"
-// #include "database/environment_build.hpp"
+// #include "environment/environment_build.hpp"
 // 
 // #include "database/types/component_type.hpp"
-// #include "mega/values/compilation/sources.hpp"
+// #include "database/sources.hpp"
 // 
 // #include "database/model/ComponentListing.hxx"
 // #include "database/model/ParserStage.hxx"
-// #include "database/model/manifest.hxx"
-// #include "database/model/environment.hxx"
+// #include "database/manifest.hxx"
+// #include "database/environment.hxx"
 
 #include "common/string.hpp"
 

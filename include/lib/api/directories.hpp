@@ -17,10 +17,12 @@
 //  NEGLIGENCE) OR STRICT LIABILITY, EVEN IF COPYRIGHT OWNERS ARE ADVISED
 //  OF THE POSSIBILITY OF SUCH DAMAGES.
 
-#ifndef DIRECTORIES_20_OCT_2023
-#define DIRECTORIES_20_OCT_2023
+#ifndef DIRECTORIES_21_OCT_2023
+#define DIRECTORIES_21_OCT_2023
 
 #include <boost/filesystem/path.hpp>
+
+#include "common/serialisation.hpp"
 
 namespace mega::io
 {
@@ -32,13 +34,23 @@ struct Directories
     template < class Archive >
     inline void serialize( Archive& archive, const unsigned int version )
     {
-        archive& boost::serialization::make_nvp( "srcDir", srcDir );
-        archive& boost::serialization::make_nvp( "buildDir", buildDir );
-        archive& boost::serialization::make_nvp( "installDir", installDir );
-        archive& boost::serialization::make_nvp( "templatesDir", templatesDir );
+        if constexpr( boost::serialization::IsXMLArchive< Archive >::value )
+        {
+            archive& boost::serialization::make_nvp( "srcDir", srcDir );
+            archive& boost::serialization::make_nvp( "buildDir", buildDir );
+            archive& boost::serialization::make_nvp( "installDir", installDir );
+            archive& boost::serialization::make_nvp( "templatesDir", templatesDir );
+        }
+        else
+        {
+            archive& srcDir;
+            archive& buildDir;
+            archive& installDir;
+            archive& templatesDir;
+        }
     }
 };
 
-}
+} // namespace mega::io
 
-#endif //DIRECTORIES_20_OCT_2023
+#endif // DIRECTORIES_21_OCT_2023

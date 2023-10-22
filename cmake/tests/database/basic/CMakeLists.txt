@@ -37,6 +37,7 @@ include( ${WORKSPACE_ROOT_PATH}/src/database/db_include.cmake )
 set( BASIC_DIR ${DB_TEST_DIR}/basic )
 
 MegaDatabase( 
+    DBNAME      database_basic_tests
     DBCOMPILER  database_compiler_driver
     LIB         ${DB_API_DIR}/lib 
     TEMPLATE    ${DB_SRC_DIR}/compiler/templates
