@@ -23,6 +23,10 @@
 #include <ostream>
 
 #include "common/serialisation.hpp"
+#include "common/assert_verify.hpp"
+
+#include <algorithm>
+#include <array>
 
 namespace mega
 {
@@ -36,9 +40,6 @@ public:
         eLibrary,
         TOTAL_COMPONENT_TYPES
     };
-
-    const char*          str() const;
-    static ComponentType fromStr( const char* psz );
 
     ComponentType()
         : m_value( TOTAL_COMPONENT_TYPES )
@@ -67,11 +68,38 @@ public:
         }
     }
 
+
+    static inline std::array< std::string, mega::ComponentType::TOTAL_COMPONENT_TYPES > g_pszModes
+        = { "INTERFACE", "LIBRARY" };
+
+    inline const char* str() const
+    {
+        switch( m_value )
+        {
+            case eInterface:
+            case eLibrary:
+                return g_pszModes[ m_value ].c_str();
+            case TOTAL_COMPONENT_TYPES:
+            default:
+                THROW_RTE( "Invalid component type" );
+        }
+    }
+
+    static inline ComponentType fromStr( const char* psz )
+    {
+        auto iFind = std::find( g_pszModes.cbegin(), g_pszModes.cend(), psz );
+        VERIFY_RTE_MSG( iFind != g_pszModes.end(), "Unknown component type: " << psz );
+        return { static_cast< ComponentType::Value >( std::distance( g_pszModes.cbegin(), iFind ) ) };
+    }
 private:
     Value m_value;
 };
-} // namespace mega
 
-std::ostream& operator<<( std::ostream& os, mega::ComponentType componentType );
+inline std::ostream& operator<<( std::ostream& os, ComponentType componentType )
+{
+    return os << componentType.str();
+}
+
+} // namespace mega
 
 #endif // COMPONENT_TYPE_22_JUNE_2022

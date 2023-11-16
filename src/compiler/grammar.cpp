@@ -470,7 +470,6 @@ ParseResult parse( const std::string& strInput, Schema& schema, std::ostream& er
 {
     return parse_impl< SchemaGrammar >( strInput, schema, errorStream );
 }
-} // namespace db::schema
 
 std::ostream& operator<<( std::ostream& os, const db::schema::Identifier& identifier )
 {
@@ -606,3 +605,4 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Schema& schema )
     }
     return os;
 }
+} // namespace db::schema

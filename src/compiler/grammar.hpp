@@ -169,7 +169,6 @@ inline T parse( const std::string& strInput )
                     "Failed to parse string: " << strInput << " : " << osError.str() );
     return resultType;
 }
-} // namespace db::schema
 
 std::ostream& operator<<( std::ostream& os, const db::schema::Identifier& identifier );
 std::ostream& operator<<( std::ostream& os, const db::schema::IdentifierList& idlist );
@@ -179,5 +178,6 @@ std::ostream& operator<<( std::ostream& os, const db::schema::Property& property
 std::ostream& operator<<( std::ostream& os, const db::schema::Object& object );
 std::ostream& operator<<( std::ostream& os, const db::schema::Namespace& namespace_ );
 std::ostream& operator<<( std::ostream& os, const db::schema::Schema& schema );
+} // namespace db::schema
 
 #endif // DATABASE_GRAMMAR_4_APRIL_2022

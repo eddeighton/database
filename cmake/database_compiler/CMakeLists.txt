@@ -85,7 +85,6 @@ set( MEGA_DATABASE_LIB_HEADERS
 
 set( MEGA_DATABASE_LIB_SRC
     ${DB_API_DIR}/lib/src/archive.cpp
-    ${DB_API_DIR}/lib/src/component_type.cpp
     ${DB_API_DIR}/lib/src/file.cpp
     ${DB_API_DIR}/lib/src/loader.cpp
     ${DB_API_DIR}/lib/src/object.cpp
@@ -112,7 +111,6 @@ link_boost( database_compiler filesystem )
 link_boost( database_compiler iostreams )
 link_boost( database_compiler serialization )
 link_boost( database_compiler system )
-link_boost( database_compiler atomic )
 
 link_json( database_compiler )
 link_inja( database_compiler )

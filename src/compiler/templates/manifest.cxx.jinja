@@ -132,8 +132,8 @@ namespace mega::io
             iEnd = m_compilationFileInfos.end(); i!=iEnd; ++i )
         {
             const FileInfo& fileInfo = *i;
-            m_fileTypeMap.insert( std::make_pair( 
-                std::make_pair( fileInfo.getFileType(), fileInfo.getObjectSourceFilePath() ), i ) );
+            VERIFY_RTE( m_fileTypeMap.insert( std::make_pair( 
+                std::make_pair( fileInfo.getFileType(), fileInfo.getObjectSourceFilePath() ), i ) ).second );
             m_dependencies.push_back( FileIDVector{} );
         }
 

@@ -43,8 +43,7 @@ set( DB_UNIT_TESTS
 	${DB_UNIT_TESTS_DIR}/main_test_runner.cpp
 	)
 
-set( MEGA_UNIT_TESTS_DATA
-)
+set( MEGA_UNIT_TESTS_DATA )
 
 enable_testing()
 

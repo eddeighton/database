@@ -111,9 +111,10 @@ namespace mega::io
         CompilationFilePath     m_filePath;
         SourceFilePath          m_objectSourceFilePath;
     };
+    
+    std::ostream& operator<<( std::ostream& os, mega::io::FileInfo::Stage stage );
+    std::ostream& operator<<( std::ostream& os, mega::io::FileInfo::Type type );
 } // namespace mega
 
-std::ostream& operator<<( std::ostream& os, mega::io::FileInfo::Stage stage );
-std::ostream& operator<<( std::ostream& os, mega::io::FileInfo::Type type );
 
 #endif // IO_FILEINFO_28_MARCH_2022

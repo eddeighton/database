@@ -25,21 +25,23 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/interprocess/streams/vectorstream.hpp>
 
+using namespace mega;
+
 TEST( ComponentType, Basic )
 {
-    mega::ComponentType c;
+    ComponentType c;
 
-    ASSERT_EQ( c.get(), mega::ComponentType::TOTAL_COMPONENT_TYPES );
-    c.set( mega::ComponentType::eInterface );
-    ASSERT_EQ( c.get(), mega::ComponentType::eInterface );
-    ASSERT_EQ( c, mega::ComponentType{ mega::ComponentType::eInterface } );
+    ASSERT_EQ( c.get(), ComponentType::TOTAL_COMPONENT_TYPES );
+    c.set( ComponentType::eInterface );
+    ASSERT_EQ( c.get(), ComponentType::eInterface );
+    ASSERT_EQ( c, ComponentType{ ComponentType::eInterface } );
 }
 
 TEST( ComponentType, XMLIO )
 {
-    mega::ComponentType c1{ mega::ComponentType::eInterface };
-    mega::ComponentType c2{ mega::ComponentType::eLibrary };
-    mega::ComponentType c3{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType c1{ ComponentType::eInterface };
+    ComponentType c2{ ComponentType::eLibrary };
+    ComponentType c3{ ComponentType::TOTAL_COMPONENT_TYPES };
 
     std::stringstream ss;
     {
@@ -49,9 +51,9 @@ TEST( ComponentType, XMLIO )
         archive&                     boost::serialization::make_nvp( "c3", c3 );
     }
 
-    mega::ComponentType r1{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
-    mega::ComponentType r2{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
-    mega::ComponentType r3{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType r1{ ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType r2{ ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType r3{ ComponentType::TOTAL_COMPONENT_TYPES };
 
     {
         boost::archive::xml_iarchive archive( ss );
@@ -67,13 +69,13 @@ TEST( ComponentType, XMLIO )
 
 TEST( ComponentType, BinIO )
 {
-    mega::ComponentType c1{ mega::ComponentType::eInterface };
-    mega::ComponentType c2{ mega::ComponentType::eLibrary };
-    mega::ComponentType c3{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType c1{ ComponentType::eInterface };
+    ComponentType c2{ ComponentType::eLibrary };
+    ComponentType c3{ ComponentType::TOTAL_COMPONENT_TYPES };
 
-    mega::ComponentType r1{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
-    mega::ComponentType r2{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
-    mega::ComponentType r3{ mega::ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType r1{ ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType r2{ ComponentType::TOTAL_COMPONENT_TYPES };
+    ComponentType r3{ ComponentType::TOTAL_COMPONENT_TYPES };
 
     {
         boost::interprocess::basic_vectorbuf< std::vector< char > > buffer;
