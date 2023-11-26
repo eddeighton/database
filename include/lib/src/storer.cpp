@@ -23,20 +23,20 @@
 
 #include "common/file.hpp"
 
-namespace boost
+namespace boost::archive
 {
-namespace archive
-{
-MegaOArchive::MegaOArchive( std::ostream& os, std::set< const mega::io::ObjectInfo* >& objectInfos )
+MegaOArchive::MegaOArchive( std::ostream& os, std::set< const ::mega::io::ObjectInfo* >& objectInfos )
     : binary_oarchive( os )
     , m_objectInfos( objectInfos )
 {
 }
 
-void MegaOArchive::objectInfo( const mega::io::ObjectInfo* pObjectInf ) { m_objectInfos.insert( pObjectInf ); }
+void MegaOArchive::objectInfo( const ::mega::io::ObjectInfo* pObjectInf )
+{
+    m_objectInfos.insert( pObjectInf );
+}
 
-} // namespace archive
-} // namespace boost
+} // namespace boost::archive
 
 namespace mega::io
 {
@@ -46,9 +46,9 @@ Storer::Storer( const FileSystem& fileSystem, const CompilationFilePath& filePat
     , m_archive( *m_pFileStream, m_objectInfos )
 {
     {
-        std::size_t  manifestHash = 0U;
-        FileHeader fileHeader( Environment::getVersion(), manifestHash );
-        m_archive& fileHeader;
+        std::size_t manifestHash = 0U;
+        FileHeader  fileHeader( Environment::getVersion(), manifestHash );
+        m_archive&  fileHeader;
     }
 }
 

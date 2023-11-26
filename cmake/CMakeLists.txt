@@ -67,7 +67,6 @@ ENDIF( ${WIN32} )
 
 set_property(GLOBAL PROPERTY LLVM_ENABLE_RTTI ON )
 set_property(GLOBAL PROPERTY LLVM_ENABLE_EH ON )
-set_property(GLOBAL PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 #setup some common directories from the root of the project
 set( CMAKE_PARENT_PATH ${CMAKE_CURRENT_LIST_DIR}/.. )
