@@ -23,6 +23,8 @@
 #include "database/storer.hpp"
 #include "database/manifest.hxx"
 
+#include <boost/filesystem.hpp>
+
 #include <common/hash.hpp>
 
 namespace mega::io
@@ -61,11 +63,14 @@ void File::load( const Manifest& )
     VERIFY_RTE( !m_pLoader );
     try
     {
-        m_pLoader = std::make_shared< Loader >( m_fileSystem, m_info.getFilePath(), m_objectLoader );
-        preload( *m_pLoader );
-        for ( Object* pObject : m_objects )
+        if( m_fileSystem.exists( m_info.getFilePath() ) )
         {
-            pObject->load( *m_pLoader );
+            m_pLoader = std::make_shared< Loader >( m_fileSystem, m_info.getFilePath(), m_objectLoader );
+            preload( *m_pLoader );
+            for ( Object* pObject : m_objects )
+            {
+                pObject->load( *m_pLoader );
+            }
         }
     }
     catch ( boost::archive::archive_exception& ex )
@@ -80,13 +85,16 @@ void File::load_post( const Manifest& manifest )
 {
     try
     {
-        m_pLoader->postLoad( manifest );
-        VERIFY_RTE( m_pLoader );
-        for ( Object* pObject : m_objects )
+        if( m_pLoader )
         {
-            pObject->set_inheritance_pointer();
+            VERIFY_RTE( m_pLoader );
+            m_pLoader->postLoad( manifest );
+            for ( Object* pObject : m_objects )
+            {
+                pObject->set_inheritance_pointer();
+            }
+            m_pLoader.reset();
         }
-        m_pLoader.reset();
     }
     catch ( boost::archive::archive_exception& ex )
     {

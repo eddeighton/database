@@ -37,6 +37,8 @@ class FileSystem
 public:
     virtual ~FileSystem() = default;
 
+    virtual bool exists( const BuildFilePath& filePath ) const = 0;
+
     // file io
     virtual std::unique_ptr< std::istream > read( const BuildFilePath& filePath ) const = 0;
     virtual std::unique_ptr< std::ostream > write_temp( const BuildFilePath&     filePath,

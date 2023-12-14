@@ -20,7 +20,6 @@
 #ifndef ARCHIVE_21_APRIL_2022
 #define ARCHIVE_21_APRIL_2022
 
-
 #include "database/sources.hpp"
 #include "database/manifest.hxx"
 
@@ -36,6 +35,8 @@ class ReadArchive
 public:
     ReadArchive( const boost::filesystem::path& filePath );
 
+    bool                            exists( const BuildFilePath& filePath ) const;
+    bool                            exists( const SourceFilePath& filePath ) const;
     std::unique_ptr< std::istream > read( const SourceFilePath& filePath ) const;
     std::unique_ptr< std::istream > read( const BuildFilePath& filePath ) const;
 

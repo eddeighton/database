@@ -26,7 +26,6 @@
 
 #include "common/assert_verify.hpp"
 
-
 #include <boost/filesystem.hpp>
 
 #include <boost/iostreams/stream.hpp>
@@ -104,9 +103,9 @@ struct TableOfContents
 
     const File& getSourceFile( const std::string& strID ) const
     {
-        for ( FileVector::const_iterator i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
+        for( FileVector::const_iterator i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
         {
-            if ( i->m_id == strID )
+            if( i->m_id == strID )
                 return *i;
         }
         THROW_RTE( "Failed to locate file: " << strID );
@@ -114,12 +113,32 @@ struct TableOfContents
 
     const File& getBuildFile( const std::string& strID ) const
     {
-        for ( FileVector::const_iterator i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
+        for( FileVector::const_iterator i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
         {
-            if ( i->m_id == strID )
+            if( i->m_id == strID )
                 return *i;
         }
         THROW_RTE( "Failed to locate file: " << strID );
+    }
+
+    bool existsSourceFile( const std::string& strID ) const
+    {
+        for( FileVector::const_iterator i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
+        {
+            if( i->m_id == strID )
+                return true;
+        }
+        return false;
+    }
+
+    bool existsBuildFile( const std::string& strID ) const
+    {
+        for( FileVector::const_iterator i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
+        {
+            if( i->m_id == strID )
+                return true;
+        }
+        return false;
     }
 };
 
@@ -143,7 +162,7 @@ struct ReadArchive::Pimpl
                                                                const TableOfContents::File&   file )
         {
             std::unique_ptr< MappedSourceType > pMappedFile;
-            std::size_t                           szOffset = 0U;
+            std::size_t                         szOffset = 0U;
             try
             {
                 const std::size_t szAlignment = MappedSourceType::alignment();
@@ -159,7 +178,7 @@ struct ReadArchive::Pimpl
 
                 pMappedFile = std::make_unique< MappedSourceType >( filePath, szLength, szStart );
             }
-            catch ( std::exception& ex )
+            catch( std::exception& ex )
             {
                 THROW_RTE( "Failed loading from archive: " << filePath.string() << " archive file: " << file.m_id
                                                            << " at: " << file.m_start << " with length: "
@@ -178,11 +197,11 @@ struct ReadArchive::Pimpl
         VERIFY_RTE_MSG(
             boost::filesystem::exists( m_filePath ), "Failed to locate archive file: " << m_filePath.string() );
         // read the table of contents
-        SourceType                      fileSource( m_filePath.string(), std::ios::binary | std::ios::in );
-        StreamType                      istream( fileSource );
+        SourceType fileSource( m_filePath.string(), std::ios::binary | std::ios::in );
+        StreamType istream( fileSource );
 
-        //std::ifstream istream( filePath.c_str(), std::ios::binary | std::ios::in );
-        boost::archive::binary_iarchive archive(istream);
+        // std::ifstream istream( filePath.c_str(), std::ios::binary | std::ios::in );
+        boost::archive::binary_iarchive archive( istream );
         archive&                        m_toc;
     }
 
@@ -194,14 +213,14 @@ struct ReadArchive::Pimpl
     void verify()
     {
         // ensure ALL compilation files have correct environment database version
-        for ( const TableOfContents::File& file : m_toc.m_buildFiles )
+        for( const TableOfContents::File& file : m_toc.m_buildFiles )
         {
             std::unique_ptr< std::istream > pIS = StreamImpl::make_stream_impl( m_filePath, file );
             boost::archive::binary_iarchive fileArchive( *pIS );
             mega::io::FileHeader            fileHeader;
             fileArchive&                    fileHeader;
 
-            if ( fileHeader.getVersion() != mega::io::Environment::getVersion() )
+            if( fileHeader.getVersion() != mega::io::Environment::getVersion() )
             {
                 std::ostringstream os;
                 os << "Archive compilation file: " << file.m_id << " has incorrect database version";
@@ -219,6 +238,16 @@ ReadArchive::ReadArchive( const boost::filesystem::path& filePath )
 {
 }
 
+bool ReadArchive::exists( const BuildFilePath& filePath ) const
+{
+    return m_pImpl->m_toc.existsBuildFile( filePath.path().string() );
+}
+
+bool ReadArchive::exists( const SourceFilePath& filePath ) const
+{
+    return m_pImpl->m_toc.existsSourceFile( filePath.path().string() );
+}
+
 std::unique_ptr< std::istream > ReadArchive::read( const SourceFilePath& filePath ) const
 {
     const TableOfContents::File& file = m_pImpl->m_toc.getSourceFile( filePath.path().string() );
@@ -231,7 +260,10 @@ std::unique_ptr< std::istream > ReadArchive::read( const BuildFilePath& filePath
     return m_pImpl->read( file );
 }
 
-void ReadArchive::verify() { m_pImpl->verify(); }
+void ReadArchive::verify()
+{
+    m_pImpl->verify();
+}
 
 void ReadArchive::compile_archive( const boost::filesystem::path& filePath, const Manifest& manifest,
                                    const boost::filesystem::path& srcDir, const boost::filesystem::path& buildDir )
@@ -260,7 +292,7 @@ void ReadArchive::compile_archive( const boost::filesystem::path& filePath, cons
         file.m_id = manifestFilePath.path().string();
         toc.m_sourceFiles.push_back( file );
     }
-    for ( const FileInfo& compilationFile : manifest.getCompilationFileInfos() )
+    for( const FileInfo& compilationFile : manifest.getCompilationFileInfos() )
     {
         TableOfContents::File file;
         file.m_id = compilationFile.getFilePath().path().string();
@@ -276,26 +308,26 @@ void ReadArchive::compile_archive( const boost::filesystem::path& filePath, cons
     VERIFY_RTE( ofStream.is_open() );
 
     // now write the actual files
-    for ( TableOfContents::File& file : toc.m_sourceFiles )
+    for( TableOfContents::File& file : toc.m_sourceFiles )
     {
         file.m_start = StreamPos()( ofStream );
         {
             const boost::filesystem::path  filePath   = srcDir / file.m_id;
-            const std::size_t                szFileSize = boost::filesystem::file_size( filePath );
-            ReadArchive::Pimpl::SourceType fileSource( filePath.string(), std::ios::binary | std::ios::in);
+            const std::size_t              szFileSize = boost::filesystem::file_size( filePath );
+            ReadArchive::Pimpl::SourceType fileSource( filePath.string(), std::ios::binary | std::ios::in );
             ReadArchive::Pimpl::StreamType istream( fileSource );
             boost::iostreams::eds_copy( istream, ofStream, szFileSize );
         }
         file.m_length = StreamPos()( ofStream ) - file.m_start;
     }
 
-    for ( TableOfContents::File& file : toc.m_buildFiles )
+    for( TableOfContents::File& file : toc.m_buildFiles )
     {
         file.m_start = StreamPos()( ofStream );
         {
             const boost::filesystem::path  filePath   = buildDir / file.m_id;
-            const std::size_t                szFileSize = boost::filesystem::file_size( filePath );
-            ReadArchive::Pimpl::SourceType fileSource( filePath.string(), std::ios::binary | std::ios::in);
+            const std::size_t              szFileSize = boost::filesystem::file_size( filePath );
+            ReadArchive::Pimpl::SourceType fileSource( filePath.string(), std::ios::binary | std::ios::in );
             ReadArchive::Pimpl::StreamType istream( fileSource );
             boost::iostreams::eds_copy( istream, ofStream, szFileSize );
         }
