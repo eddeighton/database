@@ -20,7 +20,7 @@
 #ifndef ARCHIVE_18_04_2019
 #define ARCHIVE_18_04_2019
 
-#include "database/api.hpp"
+
 #include "database/object_loader.hpp"
 
 #include "common/serialisation.hpp"
@@ -40,7 +40,7 @@
 namespace boost::archive
 {
 
-class EGDB_EXPORT MegaIArchive : public binary_iarchive
+class MegaIArchive : public binary_iarchive
 {
     std::set< ::mega::io::ObjectInfo* >& m_objectInfos;
 
@@ -52,7 +52,7 @@ public:
     ::data::ObjectPartLoader& m_loader;
 };
 
-class EGDB_EXPORT MegaOArchive : public binary_oarchive
+class MegaOArchive : public binary_oarchive
 {
     std::set< const ::mega::io::ObjectInfo* >& m_objectInfos;
 

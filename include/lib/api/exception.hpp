@@ -20,14 +20,14 @@
 #ifndef EXCEPTION_11_MAY_2022
 #define EXCEPTION_11_MAY_2022
 
-#include "database/api.hpp"
+
 #include <stdexcept>
 #include <string>
 
 namespace mega::io
 {
 
-class EGDB_EXPORT DatabaseVersionException : public std::exception
+class DatabaseVersionException : public std::exception
 {
 public:
     DatabaseVersionException( const std::string& str )

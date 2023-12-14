@@ -20,7 +20,7 @@
 #ifndef INDEXED_FILE_18_04_2019
 #define INDEXED_FILE_18_04_2019
 
-#include "database/api.hpp"
+
 #include "database/object_info.hpp"
 
 #include "common/assert_verify.hpp"

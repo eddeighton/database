@@ -23,7 +23,10 @@
 #include "database/component_type.hpp"
 #include "database/serialisation.hpp"
 
-#include <boost/filesystem/path.hpp>
+#include "common/assert_verify.hpp"
+#include "common/file.hpp"
+
+#include <boost/filesystem.hpp>
 
 #include <vector>
 
@@ -34,9 +37,9 @@ class ComponentInfo
 public:
     using PathArray = std::vector< boost::filesystem::path >;
 
-    ComponentInfo() = default;
+    inline ComponentInfo() = default;
 
-    ComponentInfo( ComponentType componentType, const std::string& strName,
+    inline ComponentInfo( ComponentType componentType, const std::string& strName,
                                   const boost::filesystem::path& filePath, const std::vector< std::string >& cppFlags,
                                   const std::vector< std::string >& cppDefines, const boost::filesystem::path& srcDir,
                                   const boost::filesystem::path& buildDir, const ComponentInfo::PathArray& sourceFiles,
@@ -54,16 +57,29 @@ public:
     {
     }
 
-    ComponentType                     getComponentType() const { return m_componentType; }
-    const std::string&                getName() const { return m_strName; }
-    const boost::filesystem::path&    getFilePath() const { return m_filePath; }
-    const std::vector< std::string >& getCPPFlags() const { return m_cppFlags; }
-    const std::vector< std::string >& getCPPDefines() const { return m_cppDefines; }
-    const boost::filesystem::path&    getSrcDir() const { return m_srcDir; }
-    const boost::filesystem::path&    getBuildDir() const { return m_buildDir; }
-    const PathArray&                  getSourceFiles() const { return m_sourceFiles; }
-    const PathArray&                  getDependencyFiles() const { return m_dependencyFiles; }
-    const PathArray&                  getIncludeDirectories() const { return m_includeDirectories; }
+    static inline ComponentInfo load( const boost::filesystem::path& componentInfoPath )
+    {
+        io::ComponentInfo componentInfo;
+        {
+            VERIFY_RTE_MSG( boost::filesystem::exists( componentInfoPath ),
+                            "Failed to locate file: " << componentInfoPath.string() );
+            auto pInFileStream = boost::filesystem::loadFileStream( componentInfoPath );
+            boost::archive::xml_iarchive ia( *pInFileStream );
+            ia >> boost::serialization::make_nvp( "componentInfo", componentInfo );
+        }
+        return componentInfo;
+    }
+
+    inline ComponentType                     getComponentType() const { return m_componentType; }
+    inline const std::string&                getName() const { return m_strName; }
+    inline const boost::filesystem::path&    getFilePath() const { return m_filePath; }
+    inline const std::vector< std::string >& getCPPFlags() const { return m_cppFlags; }
+    inline const std::vector< std::string >& getCPPDefines() const { return m_cppDefines; }
+    inline const boost::filesystem::path&    getSrcDir() const { return m_srcDir; }
+    inline const boost::filesystem::path&    getBuildDir() const { return m_buildDir; }
+    inline const PathArray&                  getSourceFiles() const { return m_sourceFiles; }
+    inline const PathArray&                  getDependencyFiles() const { return m_dependencyFiles; }
+    inline const PathArray&                  getIncludeDirectories() const { return m_includeDirectories; }
 
     template < class Archive >
     inline void serialize( Archive& archive, const unsigned int version )

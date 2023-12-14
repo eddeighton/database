@@ -81,6 +81,12 @@ std::string ObjectPart::getPointerName() const
     return osObjectPartType.str();
 }
 
+std::string FunctionTester::getShortName() const
+{
+    std::ostringstream os;
+    os << "is_" << m_property->m_strName;
+    return os.str();
+}
 std::string FunctionGetter::getShortName() const
 {
     std::ostringstream os;
@@ -113,6 +119,12 @@ std::string FunctionInserter::getShortName() const
     return os.str();
 }
 
+std::string FunctionTester::getLongName() const
+{
+    std::ostringstream os;
+    os << "is_" << m_interface.lock()->delimitTypeName( "", "_" ) << "_" << m_property->m_strName;
+    return os.str();
+}
 std::string FunctionGetter::getLongName() const
 {
     std::ostringstream os;
@@ -1068,6 +1080,13 @@ void stageInterfaces( Mapping& mapping, Schema::Ptr pSchema )
                     if( pProperty->isCtorParam() )
                     {
                         pInterface->m_args.push_back( pProperty );
+                    }
+                    if( pProperty->isGet() && pProperty->isLate() )
+                    {
+                        FunctionTester::Ptr pTester = std::make_shared< FunctionTester >( mapping.counter );
+                        pTester->m_interface        = pInterface;
+                        pTester->m_property         = pProperty;
+                        pInterface->m_functions.push_back( pTester );
                     }
                 }
             }

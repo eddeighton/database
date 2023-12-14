@@ -19,6 +19,7 @@
 
 #include "database/environment.hxx"
 #include "database/directories.hpp"
+#include "database/component_info.hpp"
 #include "database/sources.hpp"
 #include "database/BasicStage.hxx"
 #include "database/SecondStage.hxx"
@@ -59,8 +60,8 @@ public:
             = std::make_unique< mega::io::Directories >( mega::io::Directories{ m_tempDir, m_tempDir, "", "" } );
         m_pEnvironment = std::make_unique< Env >( *m_pDirectories );
 
-        std::vector< boost::filesystem::path > componentInfoPaths;
-        const mega::io::Manifest               manifest( *m_pEnvironment, m_tempDir, componentInfoPaths );
+        std::vector< mega::io::ComponentInfo > componentInfos;
+        const mega::io::Manifest               manifest( *m_pEnvironment, m_tempDir, componentInfos );
         const mega::io::manifestFilePath       projectManifestPath = m_pEnvironment->project_manifest();
         manifest.save_temp( *m_pEnvironment, projectManifestPath );
         m_pEnvironment->temp_to_real( projectManifestPath );

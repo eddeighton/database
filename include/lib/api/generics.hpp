@@ -20,7 +20,7 @@
 #ifndef IO_GENERICS_MAR_25_2022
 #define IO_GENERICS_MAR_25_2022
 
-#include "database/api.hpp"
+
 #include "database/object.hpp"
 
 #include <array>
@@ -29,7 +29,7 @@
 namespace mega::io
 {
 template < typename Iterator >
-struct EGDB_EXPORT Range
+struct Range
 {
     using iterator_type = Iterator;
     Iterator _begin, _end;

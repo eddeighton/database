@@ -23,7 +23,7 @@
 #ifndef OBJECT_LOADER_9_APRIL_2022
 #define OBJECT_LOADER_9_APRIL_2022
 
-#include "database/api.hpp"
+
 #include "database/object_info.hpp"
 #include "database/object.hpp"
 

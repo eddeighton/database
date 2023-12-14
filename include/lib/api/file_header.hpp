@@ -20,13 +20,13 @@
 #ifndef FILE_HEADER_12_MAY_2022
 #define FILE_HEADER_12_MAY_2022
 
-#include "database/api.hpp"
+
 #include <cstddef>
 
 namespace mega::io
 {
 
-class EGDB_EXPORT FileHeader
+class FileHeader
 {
 public:
     FileHeader()

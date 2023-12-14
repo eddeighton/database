@@ -41,6 +41,12 @@
 namespace mega::io
 {
     Manifest::Manifest() {}
+
+    Manifest::Manifest( const ManifestData& manifestData )
+        :   ManifestData( manifestData )
+    {
+        initialiseLookupTables();
+    }
  
     Manifest::Manifest( const Environment& environment, const manifestFilePath& filepath ) 
     { 
@@ -52,7 +58,7 @@ namespace mega::io
     }
 
     Manifest::Manifest( const Environment& environment, const boost::filesystem::path& srcDirectory,
-                        const std::vector< boost::filesystem::path >& componentInfos )
+                        const std::vector< io::ComponentInfo >& componentInfos )
     {
         ObjectInfo::FileID compilationFileID = 0;
 
@@ -72,21 +78,8 @@ namespace mega::io
 {% endif %}
 {% endfor %}
 
-        for ( const boost::filesystem::path& componentInfoPath : componentInfos )
+        for ( const auto& componentInfo : componentInfos )
         {
-            ComponentInfo componentInfo;
-            {
-                VERIFY_RTE_MSG( boost::filesystem::exists( componentInfoPath ),
-                                "Failed to locate file: " << componentInfoPath.string() );
-                std::ifstream inputFileStream( componentInfoPath.string().c_str(), std::ios::in | std::ios_base::binary );
-                if ( !inputFileStream.good() )
-                {
-                    THROW_RTE( "Failed to open file: " << componentInfoPath.string() );
-                }
-                boost::archive::xml_iarchive ia( inputFileStream );
-                ia >> boost::serialization::make_nvp( "componentInfo", componentInfo );
-            }
-
             for ( const boost::filesystem::path& filePath : componentInfo.getSourceFiles() )
             {
 {% for source in sources %}

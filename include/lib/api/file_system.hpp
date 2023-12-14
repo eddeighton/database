@@ -20,7 +20,7 @@
 #ifndef FILE_SYSTEM_21_APRIL_2022
 #define FILE_SYSTEM_21_APRIL_2022
 
-#include "database/api.hpp"
+
 #include "database/sources.hpp"
 
 #include "common/hash.hpp"
@@ -32,7 +32,7 @@
 
 namespace mega::io
 {
-class EGDB_EXPORT FileSystem
+class FileSystem
 {
 public:
     virtual ~FileSystem() = default;

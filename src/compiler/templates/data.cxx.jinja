@@ -43,8 +43,10 @@ namespace {{ file.name }}
           , {{ pointer.longname }}( loader )
 {% endfor %}{#part.pointers#}
 {% for property in part.properties %}
+{% if not property.has_validation %}
 {% if property.is_pointer %}
           , {{ property.name }}( loader )
+{% endif %}
 {% endif %}
 {% endfor %}{#part.property#}
     {

@@ -20,8 +20,9 @@
 #ifndef IO_MANIFEST_26_MAR_2022
 #define IO_MANIFEST_26_MAR_2022
 
-#include "database/api.hpp"
+
 #include "database/object.hpp"
+#include "database/component_info.hpp"
 #include "database/serialisation.hpp"
 #include "database/object_info.hpp"
 #include "database/file.hpp"
@@ -49,7 +50,7 @@ namespace mega::io
     class Component;
     class FileStore;
 
-    class EGDB_EXPORT Manifest : public ManifestData
+    class Manifest : public ManifestData
     {
     public:
         using PtrCst                = std::shared_ptr< const Manifest >;
@@ -60,13 +61,16 @@ namespace mega::io
 
         Manifest();
 
+        // create manifest from existing ManifestData
+        Manifest( const ManifestData& manifestData );
+
         // Load an existing manifest from the specified file.
         Manifest( const Environment& environment, const manifestFilePath& filepath );
 
         // Construct a manifest from the source and build directory by
         // recursively analysing existing source listing files.
         Manifest( const Environment& environment, const boost::filesystem::path& srcDirectory, 
-            const std::vector< boost::filesystem::path >& sourceListings );
+            const std::vector< io::ComponentInfo >& componentInfos );
 
         File::PtrCst loadFile( const Environment& environment, mega::io::FileStore& fileStore, 
             const SourceFilePath& sourceFile, FileInfo::Stage stage, FileInfo::Type fileType ) const;

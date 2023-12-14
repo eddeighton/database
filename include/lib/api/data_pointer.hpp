@@ -20,7 +20,7 @@
 #ifndef DATA_POINTER_7_APRIL_2022
 #define DATA_POINTER_7_APRIL_2022
 
-#include "database/api.hpp"
+
 
 #include "database/loader.hpp"
 #include "database/object_info.hpp"
@@ -37,7 +37,7 @@ namespace data
 {
 
 template < typename T >
-class EGDB_EXPORT Ptr
+class Ptr
 {
     friend class Ptr< void >;
 
@@ -189,7 +189,7 @@ inline Ptr< TTo > convert( const Ptr< TFrom >& from )
     THROW_RTE( "Invalid conversion" );
 }
 
-class EGDB_EXPORT Factory
+class Factory
 {
 public:
     static mega::io::Object* create( ObjectPartLoader& loader, const mega::io::ObjectInfo& objectInfo );

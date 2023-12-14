@@ -20,7 +20,7 @@
 #ifndef DRIVER_ENVIRONMENT_24_MARCH_2022
 #define DRIVER_ENVIRONMENT_24_MARCH_2022
 
-#include "database/api.hpp"
+
 #include "database/file_system.hpp"
 
 {% for include in includes %}
@@ -33,7 +33,7 @@
 
 namespace mega::io
 {
-class EGDB_EXPORT Environment : public FileSystem
+class Environment : public FileSystem
 {
 public:
     static std::size_t getVersion();

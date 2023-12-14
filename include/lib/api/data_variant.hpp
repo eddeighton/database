@@ -31,7 +31,7 @@ namespace data
 {
 
 template <>
-class EGDB_EXPORT Ptr< void >
+class Ptr< void >
 {
     using ObjectInfoPtr = std::shared_ptr< mega::io::ObjectInfo >;
 
@@ -114,7 +114,7 @@ private:
 using Variant = Ptr< void >;
 
 template < typename TVariantType, typename TTo, typename TFrom >
-struct EGDB_EXPORT UpCast
+struct UpCast
 {
     inline TVariantType operator()( TFrom& from ) const { return from; }
 };

@@ -125,6 +125,7 @@ public:
     bool isGet() const { return m_type->isGet(); }
     bool isSet() const { return m_type->isSet(); }
     bool isInsert() const { return m_type->isInsert(); }
+    bool isLate() const { return m_type->m_bLate; }
 
     std::weak_ptr< ObjectPart > m_objectPart;
 
@@ -290,6 +291,19 @@ public:
             os << param.type << param.name;
         return os.str();
     }
+};
+class FunctionTester : public Function
+{
+public:
+    using Ptr = std::shared_ptr< FunctionTester >;
+    FunctionTester( Counter& szCounter )
+        : Function( szCounter )
+    {
+    }
+    virtual std::string getShortName() const;
+    virtual std::string getLongName() const;
+    virtual std::string getReturnType( const std::string& ) const { return "bool"; }
+    virtual ParamVector getParams( const std::string& ) const { return ParamVector{}; }
 };
 class FunctionGetter : public Function
 {

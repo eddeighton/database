@@ -20,7 +20,7 @@
 #ifndef ARCHIVE_21_APRIL_2022
 #define ARCHIVE_21_APRIL_2022
 
-#include "database/api.hpp"
+
 #include "database/sources.hpp"
 #include "database/manifest.hxx"
 
@@ -31,7 +31,7 @@
 namespace mega::io
 {
 
-class EGDB_EXPORT ReadArchive
+class ReadArchive
 {
 public:
     ReadArchive( const boost::filesystem::path& filePath );

@@ -388,23 +388,17 @@ void writeConversions( nlohmann::json& stage, model::Schema::Ptr pSchema, model:
     for( model::Interface::Ptr pInterface : pStage->m_interfaceTopological )
     {
         auto pPart = pInterface->getPrimaryObjectPart( pStage );
-        // for ( auto pPart : pInterface->getPrimaryObjectParts() )
         {
-            // auto partStage = pPart->m_file.lock()->m_stage.lock();
-            //  if ( pStage->isDependency( partStage ) )
-            //  if ( pStage == partStage )
-            {
-                const std::string strType = pInterface->delimitTypeName( pStage->m_strName, "::" );
+            const std::string strType = pInterface->delimitTypeName( pStage->m_strName, "::" );
 
-                model::SuperType::Ptr pSuper = pInterface->m_superInterface.lock();
-                nlohmann::json        conversion
-                    = nlohmann::json::object( { { "type", strType },
-                                                { "file", pPart->m_file.lock()->m_strName },
-                                                { "supertype", pSuper->getTypeName() },
-                                                { "object", pPart->m_object.lock()->getDataTypeName() },
-                                                { "index", pPart->m_typeID } } );
-                stage[ "conversions_view_to_data" ].push_back( conversion );
-            }
+            model::SuperType::Ptr pSuper = pInterface->m_superInterface.lock();
+            nlohmann::json        conversion
+                = nlohmann::json::object( { { "type", strType },
+                                            { "file", pPart->m_file.lock()->m_strName },
+                                            { "supertype", pSuper->getTypeName() },
+                                            { "object", pPart->m_object.lock()->getDataTypeName() },
+                                            { "index", pPart->m_typeID } } );
+            stage[ "conversions_view_to_data" ].push_back( conversion );
         }
     }
 
@@ -722,7 +716,15 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
 
     std::ostringstream osFunctionBody;
 
-    if( std::dynamic_pointer_cast< model::FunctionGetter >( pFunction ) )
+    if( std::dynamic_pointer_cast< model::FunctionTester >( pFunction ) )
+    {
+        if( !pType->m_bLate )
+        {
+            THROW_RTE( "Tester used on non-late function" );
+        }
+        osFunctionBody << "return data.has_value();";
+    }
+    else if( std::dynamic_pointer_cast< model::FunctionGetter >( pFunction ) )
     {
         const std::string strData = pType->m_bLate ? "data.value()" : "data";
         // only for getters want to test late variables have a value set

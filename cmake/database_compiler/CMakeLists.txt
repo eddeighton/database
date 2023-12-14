@@ -60,7 +60,6 @@ set( MEGA_DATABASE_COMPILER
 	)
 	
 set( MEGA_DATABASE_LIB_HEADERS
-    ${DB_API_DIR}/lib/api/api.hpp
     ${DB_API_DIR}/lib/api/archive.hpp
     ${DB_API_DIR}/lib/api/component_info.hpp
     ${DB_API_DIR}/lib/api/component_type.hpp

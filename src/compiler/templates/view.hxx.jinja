@@ -20,7 +20,7 @@
 #ifndef {{ guard }}
 #define {{ guard }}
 
-#include "database/api.hpp"
+
 #include "database/file_store.hpp"
 #include "database/environment.hxx"
 
@@ -43,9 +43,9 @@ namespace {{ stage.name }}
     template< typename TFrom, typename TTo >
     struct PointerCast;
 
-    class EGDB_EXPORT Database;
+    class Database;
 
-    class EGDB_EXPORT InterfaceBaseClass
+    class InterfaceBaseClass
     {
     public:
         virtual ~InterfaceBaseClass() = 0;
@@ -57,7 +57,7 @@ namespace {{ stage.name }}
     namespace {{ namespace }}
     { 
 {% endfor %}{#interface.namespaces#}
-        class EGDB_EXPORT {{ interface.name }};
+        class {{ interface.name }};
 {% for namespace in interface.namespaces %}
     } //{{ namespace }}
 {% endfor %}{#interface.namespaces#}
@@ -70,7 +70,7 @@ namespace {{ stage.name }}
     namespace {{ namespace }}
     { 
 {% endfor %}{#interface.namespaces#}
-        class EGDB_EXPORT {{ interface.name }} : public virtual InterfaceBaseClass{% if interface.has_base %}, public virtual {{ interface.base }}{% endif %}
+        class {{ interface.name }} : public virtual InterfaceBaseClass{% if interface.has_base %}, public virtual {{ interface.base }}{% endif %}
 
         {
         protected:
@@ -81,7 +81,7 @@ namespace {{ stage.name }}
             {{ interface.name }}& operator=( const {{ interface.name }}& ) = delete;
             static constexpr const char* TYPE_NAME = "{{ interface.fullname }}";
 {% if interface.readwrite %}
-            struct EGDB_EXPORT Args
+            struct Args
             {
 {% for ctor in interface.args_ctors %}
                 Args({% for param in ctor.params %}{{ param.type }} _{{ param.name }}{% if not loop.is_last %}, {% endif %}{% endfor %})
@@ -111,12 +111,13 @@ namespace {{ stage.name }}
 {% endfor %}{#interface.namespaces#}
 {% endfor %}{# stage.interfaces #}
 
-    class EGDB_EXPORT Database
+    class Database
     {
     public:
         struct Pimpl;
         Database( const mega::io::Environment& environment );
         Database( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile );
+        Database( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile, bool bLoad );
         Database( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile, mega::io::FileStore::Ptr pFileStore );
         
         template< typename T >

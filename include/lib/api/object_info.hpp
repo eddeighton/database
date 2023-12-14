@@ -20,14 +20,14 @@
 #ifndef OBJECT_INFO_30_MAR_2022
 #define OBJECT_INFO_30_MAR_2022
 
-#include "database/api.hpp"
+
 
 namespace mega::io
 {
 class Loader;
 class Storer;
 
-class EGDB_EXPORT ObjectInfo
+class ObjectInfo
 {
 public:
     using Type = int;

@@ -441,6 +441,17 @@ struct Database::Pimpl : public SuperFactory
     {
         m_manifest.loadAll( m_environment, *m_pFileStore, mega::io::FileInfo::{{ stage.name }} );
     }
+    Pimpl( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile, bool )
+        :   m_environment( environment ),
+            m_sourceFile( sourceFile ),
+            m_manifest( m_environment, m_environment.project_manifest() ),
+            m_pFileStore( new mega::io::FileStore( m_environment, m_manifest, mega::io::FileInfo::{{ stage.name }} ) )
+    {
+{% for file in stage.readwrite_files %}
+        m_manifest.loadFile( m_environment, *m_pFileStore, 
+            m_sourceFile, mega::io::FileInfo::{{ stage.name }}, mega::io::FileInfo::{{ stage.name }}_{{ file.name }} );
+{% endfor %}{# stage.readwrite_files #}
+    }
     Pimpl( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile )
         :   m_environment( environment ),
             m_sourceFile( sourceFile ),
@@ -472,7 +483,7 @@ struct Database::Pimpl : public SuperFactory
         {
             mega::io::File::PtrCst pFile;
 {% if file_accessor.read_write %}
-            if( sourceFile == m_sourceFile )
+            if( m_pFile_{{ file_accessor.file }} && ( sourceFile == m_sourceFile ) )
                 pFile = m_pFile_{{ file_accessor.file }};
             else
                 pFile = m_manifest.loadFile( m_environment, *m_pFileStore, 
@@ -658,6 +669,11 @@ Database::Database( const mega::io::Environment& environment )
 
 Database::Database( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile )
 :   m_pimpl( new Pimpl( environment, sourceFile ) )
+{
+}
+
+Database::Database( const mega::io::Environment& environment, const mega::io::SourceFilePath& sourceFile, bool bLoad )
+:   m_pimpl( new Pimpl( environment, sourceFile, bLoad ) )
 {
 }
 
