@@ -20,6 +20,8 @@
 #ifndef ENVIRONMENT_TEST_21_OCT_2023
 #define ENVIRONMENT_TEST_21_OCT_2023
 
+#include "database/directories.hpp"
+
 #include "common/file.hpp"
 
 #include <boost/filesystem/operations.hpp>
@@ -92,6 +94,11 @@ public:
         {
             boost::filesystem::copy( from, to, boost::filesystem::copy_options::synchronize );
         }
+    }
+
+    bool exists( const BuildFilePath& filePath ) const override
+    {
+        return true;
     }
 
     std::unique_ptr< std::istream > read( const BuildFilePath& filePath ) const override
