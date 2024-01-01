@@ -56,6 +56,15 @@ namespace MultiStageBaseTest
     {
         value< int > anInt;
     }
+    // cannot have inheritance EVENT within same stages
+    /*object TestDerived1 : TestObject -> FirstStage::FirstFile, SecondStage::SecondFile
+    {
+        value< float > aFloat;
+    }
+    object TestDerived2 : TestObject -> FirstStage::FirstFile, SecondStage::SecondFile
+    {
+        value< bool > aBool;
+    }*/
     
     /*
     // In order to support deriving from a mutli stage constructable object

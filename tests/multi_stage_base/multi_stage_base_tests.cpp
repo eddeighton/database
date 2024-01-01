@@ -86,6 +86,10 @@ TEST_F( MultiStageBaseDBTest, CreateObjectInTwoStages )
         ASSERT_EQ( pTestObject->get_anInt(), 1 );
         ASSERT_TRUE( pTestObject );
 
+        // refine object
+        // auto pRefined = database.construct< TestDerived1 >( TestDerived1::Args{ pTestObject, 2.01f } );
+        // ASSERT_TRUE( pRefined );
+
         database.save_FirstFile_to_temp();
         m_pEnvironment->temp_to_real( m_pEnvironment->FirstStage_FirstFile( m_pEnvironment->project_manifest() ) );
     }
@@ -100,12 +104,18 @@ TEST_F( MultiStageBaseDBTest, CreateObjectInTwoStages )
         for( auto p : existing )
         {
             ASSERT_EQ( p->get_anInt(), 1 );
+            // auto pDerived = db_cast< TestDerived1 >( p );
+            // ASSERT_TRUE( pDerived );
+            // ASSERT_EQ( pDerived->get_aFloat(), 2.01f );
         }
 
         // create object in later stage
         TestObject* pTestObject = database.construct< TestObject >( TestObject::Args{ 2 } );
         ASSERT_TRUE( pTestObject );
         ASSERT_EQ( pTestObject->get_anInt(), 2 );
+
+        // auto pRefined = database.construct< TestDerived2 >( TestDerived2::Args{ pTestObject, true } );
+        // ASSERT_TRUE( pRefined );
 
         auto existing2 = database.many< TestObject >( m_pEnvironment->project_manifest() );
         ASSERT_EQ( existing2.size(), 2 );
@@ -123,5 +133,7 @@ TEST_F( MultiStageBaseDBTest, CreateObjectInTwoStages )
         ASSERT_EQ( existing.size(), 2 );
         ASSERT_EQ( existing[ 0 ]->get_anInt(), 1 );
         ASSERT_EQ( existing[ 1 ]->get_anInt(), 2 );
+
+        std::cout << "Ed was here" << std::endl;
     }
 }
