@@ -294,9 +294,15 @@ void ReadArchive::compile_archive( const boost::filesystem::path& filePath, cons
     }
     for( const FileInfo& compilationFile : manifest.getCompilationFileInfos() )
     {
-        TableOfContents::File file;
-        file.m_id = compilationFile.getFilePath().path().string();
-        toc.m_buildFiles.push_back( file );
+        const auto fileID   = compilationFile.getFilePath().path();
+        const auto realPath = buildDir / fileID;
+        // ONLY add files IF they exist
+        if( boost::filesystem::exists( realPath ) )
+        {
+            TableOfContents::File file;
+            file.m_id = fileID.string();
+            toc.m_buildFiles.push_back( file );
+        }
     }
 
     // write initial version of the toc
