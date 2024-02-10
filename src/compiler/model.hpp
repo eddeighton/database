@@ -442,7 +442,6 @@ public:
     Interface::Ptr         m_interface;
 };
 
-class Stage;
 class Source : public CountedObject
 {
 public:

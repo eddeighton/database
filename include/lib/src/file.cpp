@@ -34,8 +34,11 @@ void File::preload( Loader& loader )
 {
     std::size_t szNumObjects = 0U;
     loader.load( szNumObjects );
+
+    m_rawObjects.resize( szNumObjects );
     m_objects.resize( szNumObjects );
-    for ( std::size_t sz = 0U; sz < szNumObjects; ++sz )
+
+    for( std::size_t sz = 0U; sz < szNumObjects; ++sz )
     {
         ObjectInfo objectInfo;
         loader.load( objectInfo );
@@ -45,16 +48,17 @@ void File::preload( Loader& loader )
         objectInfo = ObjectInfo( objectInfo.getType(), getFileID(), objectInfo.getIndex() );
 
         // test the stored index is valid
-        VERIFY_RTE( objectInfo.getIndex() < m_objects.size() );
+        VERIFY_RTE( objectInfo.getIndex() < m_rawObjects.size() );
 
         // test the object NOT already created
-        Object* pObject = m_objects[ objectInfo.getIndex() ];
+        Object* pObject = m_rawObjects[ objectInfo.getIndex() ];
         VERIFY_RTE( !pObject );
 
         // create the object
         pObject = data::Factory::create( m_objectLoader, objectInfo );
 
-        m_objects[ objectInfo.getIndex() ] = pObject;
+        m_rawObjects[ objectInfo.getIndex() ] = pObject;
+        m_objects[ objectInfo.getIndex() ].reset( pObject );
     }
 }
 
@@ -67,13 +71,13 @@ void File::load( const Manifest& )
         {
             m_pLoader = std::make_shared< Loader >( m_fileSystem, m_info.getFilePath(), m_objectLoader );
             preload( *m_pLoader );
-            for ( Object* pObject : m_objects )
+            for( Object* pObject : m_rawObjects )
             {
                 pObject->load( *m_pLoader );
             }
         }
     }
-    catch ( boost::archive::archive_exception& ex )
+    catch( boost::archive::archive_exception& ex )
     {
         THROW_RTE( "Exception in stage: " << m_stage << " from boost archive when reading: "
                                           << m_info.getFilePath().path().string() << " code: " << ex.code << " : "
@@ -89,14 +93,14 @@ void File::load_post( const Manifest& manifest )
         {
             VERIFY_RTE( m_pLoader );
             m_pLoader->postLoad( manifest );
-            for ( Object* pObject : m_objects )
+            for( Object* pObject : m_rawObjects )
             {
                 pObject->set_inheritance_pointer();
             }
             m_pLoader.reset();
         }
     }
-    catch ( boost::archive::archive_exception& ex )
+    catch( boost::archive::archive_exception& ex )
     {
         THROW_RTE( "Exception in stage: " << m_stage << " from boost archive when reading: "
                                           << m_info.getFilePath().path().string() << " code: " << ex.code << " : "
@@ -112,12 +116,12 @@ task::FileHash File::save_temp( const Manifest& manifest ) const
         {
             Storer storer( m_fileSystem, m_info.getFilePath(), tempFile );
 
-            storer.store( m_objects.size() );
-            for ( Object* pObject : m_objects )
+            storer.store( m_rawObjects.size() );
+            for( Object* pObject : m_rawObjects )
             {
                 storer.store( pObject->getObjectInfo() );
             }
-            for ( Object* pObject : m_objects )
+            for( Object* pObject : m_rawObjects )
             {
                 pObject->store( storer );
             }
@@ -126,7 +130,7 @@ task::FileHash File::save_temp( const Manifest& manifest ) const
             auto manifestData = manifest.filterToObjects( storer.getObjectInfos() );
             storer.store( manifestData );
         }
-        catch ( boost::archive::archive_exception& ex )
+        catch( boost::archive::archive_exception& ex )
         {
             THROW_RTE( "Exception from boost archive when writing: " << m_info.getFilePath().path().string()
                                                                      << " code: " << ex.code << " : " << ex.what() );

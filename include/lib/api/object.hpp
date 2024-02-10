@@ -44,8 +44,6 @@ class Storer;
 class Object
 {
 public:
-    using Array = std::vector< Object* >;
-
     virtual ~Object();
 
     virtual bool test_inheritance_pointer( ::data::ObjectPartLoader& loader ) const = 0;

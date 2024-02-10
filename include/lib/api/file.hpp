@@ -20,7 +20,6 @@
 #ifndef INDEXED_FILE_25_MAR_2022
 #define INDEXED_FILE_25_MAR_2022
 
-
 #include "database/object_info.hpp"
 #include "database/object_info.hpp"
 #include "database/generics.hpp"
@@ -51,31 +50,36 @@ public:
     using PtrCst = std::shared_ptr< const File >;
 
 private:
+    using ObjectPtr       = std::unique_ptr< Object >;
+    using OwnershipVector = std::vector< ObjectPtr >;
+    using RawVector       = std::vector< Object* >;
+
+private:
     const FileSystem&         m_fileSystem;
     FileInfo                  m_info;
     FileInfo::Stage           m_stage;
     data::ObjectPartLoader&   m_objectLoader;
-    Object::Array             m_objects;
+    OwnershipVector           m_objects;
+    RawVector                 m_rawObjects;
     std::shared_ptr< Loader > m_pLoader;
 
     void preload( Loader& loader );
 
 public:
-    File( const FileSystem& fileSystem, const FileInfo& info, FileInfo::Stage stage,
-          data::ObjectPartLoader& objectLoader )
+    File( const FileSystem& fileSystem, FileInfo info, FileInfo::Stage stage, data::ObjectPartLoader& objectLoader )
         : m_fileSystem( fileSystem )
-        , m_info( info )
+        , m_info( std::move( info ) )
         , m_stage( stage )
         , m_objectLoader( objectLoader )
     {
     }
 
     std::size_t getTotalObjects() const { return m_objects.size(); }
-    Object*   getObject( ObjectInfo::Index objectIndex ) const
+    Object*     getObject( ObjectInfo::Index objectIndex ) const
     {
         VERIFY_RTE( objectIndex >= 0 );
         VERIFY_RTE( objectIndex < m_objects.size() );
-        return m_objects[ objectIndex ];
+        return m_rawObjects[ objectIndex ];
     }
 
     FileInfo::Type             getType() const { return m_info.getFileType(); }
@@ -90,21 +94,20 @@ public:
     template < typename T, typename... Args >
     inline data::Ptr< T > construct( Args... args )
     {
-        T* pNewObject = new T(
-            m_objectLoader, io::ObjectInfo( T::Object_Part_Type_ID, m_info.getFileID(), m_objects.size() ), args... );
-        m_objects.push_back( pNewObject );
-        return data::Ptr< T >( m_objectLoader, pNewObject );
+        auto pNewObject = std::make_unique< T >(
+            m_objectLoader, io::ObjectInfo( T::Object_Part_Type_ID, m_info.getFileID(), m_objects.size() ),
+            args... );
+
+        auto pRaw = pNewObject.get();
+
+        m_objects.emplace_back( std::move( pNewObject ) );
+        m_rawObjects.push_back( pRaw );
+
+        return data::Ptr< T >( m_objectLoader, pRaw );
     }
 
-    inline Range< Object::Array::const_iterator > range() const
-    {
-        return Range< Object::Array::const_iterator >( m_objects.cbegin(), m_objects.cend() );
-    }
-
-    inline Range< Object::Array::iterator > range()
-    {
-        return Range< Object::Array::iterator >( m_objects.begin(), m_objects.end() );
-    }
+    inline Range< RawVector::const_iterator > range() const { return { m_rawObjects.cbegin(), m_rawObjects.cend() }; }
+    inline Range< RawVector::iterator >       range() { return { m_rawObjects.begin(), m_rawObjects.end() }; }
 };
 
 } // namespace mega::io

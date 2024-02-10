@@ -28,20 +28,23 @@
 
 namespace mega::io
 {
+
 template < typename Iterator >
 struct Range
 {
     using iterator_type = Iterator;
     Iterator _begin, _end;
+
     Range( Iterator _begin, Iterator _end )
         : _begin( _begin )
         , _end( _end )
     {
     }
+    
     Iterator begin() const { return _begin; }
     Iterator end() const { return _end; }
 
-    bool operator=( const Range& cmp ) const { return _begin == cmp._begin && _end == cmp._end; }
+    bool operator==( const Range& cmp ) const { return ( _begin == cmp._begin ) && ( _end == cmp._end ); }
 };
 
 } // namespace mega::io
