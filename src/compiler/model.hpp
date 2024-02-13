@@ -40,16 +40,42 @@ using Counter = U64;
 
 class CountedObject
 {
+    friend class CountedObjectFactory;
+
 public:
-    CountedObject( Counter& szCounter )
-        : m_szIndex( szCounter++ )
-    {
-    }
-    virtual ~CountedObject() {}
+    CountedObject()          = default;
+    virtual ~CountedObject() = default;
+
     inline Counter getCounter() const { return m_szIndex; }
 
 private:
     Counter m_szIndex;
+};
+
+class CountedObjectFactory
+{
+    using Ptr       = std::unique_ptr< CountedObject >;
+    using PtrVector = std::vector< Ptr >;
+
+public:
+    template < typename T, typename... Args >
+    T* make( Args&&... args )
+    {
+        auto pNew = std::make_unique< T >( std::forward< Args >( args )... );
+
+        T* p = pNew.get();
+
+        p->m_szIndex = m_counter;
+        ++m_counter;
+
+        m_objects.emplace_back( std::move( pNew ) );
+
+        return p;
+    }
+
+private:
+    Counter   m_counter = 0U;
+    PtrVector m_objects;
 };
 
 template < typename T >
@@ -67,26 +93,25 @@ public:
 };
 
 template < typename T >
-class CountedObjectComparatorWeak
+class CountedObjectPairComparator
 {
 public:
-    bool operator()( T left, T right ) const { return left.lock()->getCounter() < right.lock()->getCounter(); }
+    bool operator()( T left, T right ) const
+    {
+        return ( left.first->getCounter() != right.first->getCounter() )
+                   ? ( left.first->getCounter() < right.first->getCounter() )
+                   : ( left.second->getCounter() < right.second->getCounter() );
+    }
 };
-
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 // base classes
 class Type : public CountedObject
 {
 public:
-    using Ptr = std::shared_ptr< Type >;
+    using Ptr = Type*;
 
     bool m_bLate = false;
-
-    Type( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
 
     void setLate() { m_bLate = true; }
 
@@ -114,12 +139,7 @@ class Stage;
 class Property : public CountedObject
 {
 public:
-    using Ptr = std::shared_ptr< Property >;
-
-    Property( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
+    using Ptr = Property*;
 
     bool isCtorParam() const { return !( m_type->m_bLate || !m_type->isCtorParam() ); }
     bool isGet() const { return m_type->isGet(); }
@@ -127,8 +147,7 @@ public:
     bool isInsert() const { return m_type->isInsert(); }
     bool isLate() const { return m_type->m_bLate; }
 
-    std::weak_ptr< ObjectPart > m_objectPart;
-
+    ObjectPart* m_objectPart{};
     std::string m_strName;
     Type::Ptr   m_type;
 };
@@ -136,90 +155,69 @@ public:
 class ObjectPart : public CountedObject
 {
 public:
-    using Ptr = std::shared_ptr< ObjectPart >;
-
-    ObjectPart( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-
-    std::weak_ptr< Object >      m_object;
-    std::weak_ptr< File >        m_file;
-    std::vector< Property::Ptr > m_properties;
-    U64                          m_typeID;
+    using Ptr = ObjectPart*;
 
     std::string getDataType( const std::string& strDelimiter ) const;
     std::string getPointerName() const;
+
+    Object*                      m_object{};
+    File*                        m_file{};
+    std::vector< Property::Ptr > m_properties;
+    U64                          m_typeID;
 };
 
 class PrimaryObjectPart : public ObjectPart
 {
 public:
-    PrimaryObjectPart( Counter& szCounter )
-        : ObjectPart( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< PrimaryObjectPart >;
+    using Ptr = PrimaryObjectPart*;
 };
 
 class SecondaryObjectPart : public ObjectPart
 {
 public:
-    SecondaryObjectPart( Counter& szCounter )
-        : ObjectPart( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< SecondaryObjectPart >;
+    using Ptr = SecondaryObjectPart*;
 };
 
 class InheritedObjectPart : public SecondaryObjectPart
 {
 public:
-    InheritedObjectPart( Counter& szCounter )
-        : SecondaryObjectPart( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< InheritedObjectPart >;
+    using Ptr = InheritedObjectPart*;
 };
 
 class AggregatedObjectPart : public SecondaryObjectPart
 {
 public:
-    AggregatedObjectPart( Counter& szCounter )
-        : SecondaryObjectPart( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< AggregatedObjectPart >;
+    using Ptr = AggregatedObjectPart*;
 };
 
 class Object : public CountedObject
 {
 public:
-    Object( Counter& szCounter, std::string strIdentifier )
-        : CountedObject( szCounter )
-        , m_strName( std::move( strIdentifier ) )
+    Object( std::string strIdentifier )
+        : m_strName( std::move( strIdentifier ) )
     {
     }
-    using Ptr     = std::shared_ptr< Object >;
-    using WeakPtr = std::weak_ptr< Object >;
 
-    using WeakObjectPtrSet    = std::set< WeakPtr, CountedObjectComparatorWeak< Object::WeakPtr > >;
-    using WeakObjectPtrSetPtr = std::shared_ptr< WeakObjectPtrSet >;
-    WeakObjectPtrSetPtr m_pInheritanceGroup;
+    using Ptr = Object*;
 
-    std::string inheritanceGroupVariant( std::shared_ptr< Stage > pStage ) const;
+    using ObjectPtrSet    = std::set< Ptr, CountedObjectComparator< Ptr > >;
+    using ObjectPtrSetPtr = std::shared_ptr< ObjectPtrSet >;
+
+    ObjectPtrSetPtr m_pInheritanceGroup;
+
+    std::string inheritanceGroupVariant( Stage* pStage ) const;
     std::string delimitTypeName( const std::string& str ) const;
 
-    std::weak_ptr< Namespace > m_namespace;
+    Namespace* m_namespace{};
 
     // primary object part for the object in its stage
     std::vector< PrimaryObjectPart::Ptr >   m_primaryObjectParts;
     std::vector< SecondaryObjectPart::Ptr > m_secondaryParts;
 
-    PrimaryObjectPart::Ptr getPrimaryObjectPart( std::shared_ptr< Stage > pStage );
+    PrimaryObjectPart::Ptr getPrimaryObjectPart( Stage* pStage );
 
-    Ptr                                    m_base;
-    std::vector< std::weak_ptr< Object > > m_deriving;
+    Ptr                m_base{};
+    std::vector< Ptr > m_deriving;
 
     const std::string& getIdentifier() const { return m_strName; }
     std::string        getDataTypeName() const;
@@ -231,13 +229,9 @@ private:
 class Namespace : public CountedObject
 {
 public:
-    Namespace( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< Namespace >;
+    using Ptr = Namespace*;
 
-    std::weak_ptr< Namespace > m_namespace;
+    Ptr m_namespace{};
 
     std::string                   m_strName;
     std::string                   m_strFullName;
@@ -248,13 +242,9 @@ public:
 class File : public CountedObject
 {
 public:
-    File( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< File >;
+    using Ptr = File*;
 
-    std::weak_ptr< Stage > m_stage;
+    Stage* m_stage{};
 
     std::string                    m_strName;
     std::vector< ObjectPart::Ptr > m_parts;
@@ -264,13 +254,10 @@ class Interface;
 class Function : public CountedObject
 {
 public:
-    using Ptr = std::shared_ptr< Function >;
-    Function( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    Property::Ptr              m_property;
-    std::weak_ptr< Interface > m_interface;
+    using Ptr = Function*;
+
+    Property::Ptr m_property{};
+    Interface*    m_interface{};
 
     struct Param
     {
@@ -295,11 +282,8 @@ public:
 class FunctionTester : public Function
 {
 public:
-    using Ptr = std::shared_ptr< FunctionTester >;
-    FunctionTester( Counter& szCounter )
-        : Function( szCounter )
-    {
-    }
+    using Ptr = FunctionTester*;
+
     virtual std::string getShortName() const;
     virtual std::string getLongName() const;
     virtual std::string getReturnType( const std::string& ) const { return "bool"; }
@@ -308,11 +292,8 @@ public:
 class FunctionGetter : public Function
 {
 public:
-    using Ptr = std::shared_ptr< FunctionGetter >;
-    FunctionGetter( Counter& szCounter )
-        : Function( szCounter )
-    {
-    }
+    using Ptr = FunctionGetter*;
+
     virtual std::string getShortName() const;
     virtual std::string getLongName() const;
     virtual std::string getReturnType( const std::string& strStageNamespace ) const
@@ -326,11 +307,8 @@ public:
 class FunctionSetter : public Function
 {
 public:
-    using Ptr = std::shared_ptr< FunctionSetter >;
-    FunctionSetter( Counter& szCounter )
-        : Function( szCounter )
-    {
-    }
+    using Ptr = FunctionSetter*;
+
     virtual std::string getShortName() const;
     virtual std::string getLongName() const;
     virtual std::string getReturnType( const std::string& ) const { return "void"; }
@@ -343,11 +321,8 @@ public:
 class FunctionInserter : public Function
 {
 public:
-    using Ptr = std::shared_ptr< FunctionInserter >;
-    FunctionInserter( Counter& szCounter )
-        : Function( szCounter )
-    {
-    }
+    using Ptr = FunctionInserter*;
+
     virtual std::string getShortName() const;
     virtual std::string getLongName() const;
     virtual std::string getReturnType( const std::string& ) const { return "void"; }
@@ -358,16 +333,13 @@ class SuperType;
 class Interface : public CountedObject
 {
 public:
-    using Ptr = std::shared_ptr< Interface >;
-    Interface( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    std::weak_ptr< SuperType >     m_superInterface;
-    std::weak_ptr< Object >        m_object;
+    using Ptr = Interface*;
+
+    SuperType*                     m_superInterface{};
+    Object*                        m_object{};
     std::vector< Function::Ptr >   m_functions;
     std::vector< Property::Ptr >   m_args;
-    Interface::Ptr                 m_base;
+    Interface::Ptr                 m_base{};
     std::vector< ObjectPart::Ptr > m_readOnlyObjectParts;
     std::vector< ObjectPart::Ptr > m_readWriteObjectParts;
     bool                           m_isReadWrite;
@@ -375,8 +347,8 @@ public:
     std::string delimitTypeName( const std::string& strStageNamespace, const std::string& str ) const;
 
     std::vector< PrimaryObjectPart::Ptr > getPrimaryObjectParts() const;
-    PrimaryObjectPart::Ptr                getPrimaryObjectPart( std::shared_ptr< Stage > pStage ) const;
-    bool                                  ownsPrimaryObjectPart( std::shared_ptr< Stage > pStage ) const;
+    PrimaryObjectPart::Ptr                getPrimaryObjectPart( Stage* pStage ) const;
+    bool                                  ownsPrimaryObjectPart( Stage* pStage ) const;
     bool                                  ownsPrimaryObjectPart( PrimaryObjectPart::Ptr pPrimaryObjectPart ) const;
     bool                                  ownsInheritedSecondaryObjectPart() const;
 };
@@ -384,16 +356,15 @@ public:
 class SuperType : public CountedObject
 {
 public:
-    SuperType( Counter& szCounter, std::string strTypeName )
-        : CountedObject( szCounter )
-        , m_strTypeName( std::move( strTypeName ) )
+    SuperType( std::string strTypeName )
+        : m_strTypeName( std::move( strTypeName ) )
     {
     }
-    using Ptr = std::shared_ptr< SuperType >;
+    using Ptr = SuperType*;
 
-    Object::Ptr m_base_object;
+    Object::Ptr m_base_object{};
 
-    std::weak_ptr< Stage >        m_stage;
+    Stage*                        m_stage{};
     std::vector< Interface::Ptr > m_interfaces;
 
     using FunctionMultiMap = std::multimap< std::string, Function::Ptr >;
@@ -408,64 +379,43 @@ private:
 class StageFunction : public CountedObject
 {
 public:
-    StageFunction( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< StageFunction >;
+    using Ptr = StageFunction*;
 
-    std::weak_ptr< Stage > m_stage;
+    Stage* m_stage{};
 };
 
 class Accessor : public StageFunction
 {
 public:
-    Accessor( Counter& szCounter )
-        : StageFunction( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< Accessor >;
-    bool                   m_bPerSource;
-    std::weak_ptr< Stage > m_stage;
-    Type::Ptr              m_type;
+    using Ptr = Accessor*;
+    bool      m_bPerSource;
+    Stage*    m_stage{};
+    Type::Ptr m_type{};
 };
 
 class Constructor : public StageFunction
 {
 public:
-    Constructor( Counter& szCounter )
-        : StageFunction( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< Constructor >;
-    std::weak_ptr< Stage > m_stage;
-    Interface::Ptr         m_interface;
+    using Ptr = Constructor*;
+    Stage*         m_stage{};
+    Interface::Ptr m_interface{};
 };
 
 class Source : public CountedObject
 {
 public:
-    Source( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< Source >;
-    std::string                           m_strName;
-    std::vector< std::weak_ptr< Stage > > m_stages;
+    using Ptr = Source*;
+    std::string           m_strName;
+    std::vector< Stage* > m_stages;
 };
 
-class Stage : public CountedObject, public std::enable_shared_from_this< Stage >
+class Stage : public CountedObject
 {
 public:
-    Stage( Counter& szCounter )
-        : CountedObject( szCounter )
-    {
-    }
-    using Ptr     = std::shared_ptr< Stage >;
-    using WeakPtr = std::weak_ptr< Stage >;
+    using Ptr = Stage*;
 
     std::vector< std::string > m_dependencyNames;
-    std::vector< WeakPtr >     m_dependencies;
+    std::vector< Ptr >         m_dependencies;
 
     std::string                m_strName;
     std::vector< Source::Ptr > m_sources;
@@ -482,23 +432,22 @@ public:
 
     void getDependencies( std::vector< Ptr >& dependencies )
     {
-        for( WeakPtr p : m_dependencies )
+        for( Ptr p : m_dependencies )
         {
-            p.lock()->getDependencies( dependencies );
+            p->getDependencies( dependencies );
         }
-        Ptr pThis = shared_from_this();
-        if( std::find( dependencies.begin(), dependencies.end(), pThis ) == dependencies.end() )
-            dependencies.push_back( pThis );
+        if( std::find( dependencies.begin(), dependencies.end(), this ) == dependencies.end() )
+            dependencies.push_back( this );
     }
 
     // determine if pStage IS a dependency of this
     bool isDependency( Stage::Ptr pStage ) const
     {
-        if( shared_from_this() == pStage )
+        if( this == pStage )
             return true;
-        for( WeakPtr p : m_dependencies )
+        for( auto p : m_dependencies )
         {
-            if( p.lock()->isDependency( pStage ) )
+            if( p->isDependency( pStage ) )
                 return true;
         }
         return false;
@@ -508,7 +457,7 @@ public:
     {
         for( Interface::Ptr pInterface : m_interfaceTopological )
         {
-            if( pInterface->m_object.lock() == pObject )
+            if( pInterface->m_object == pObject )
                 return pInterface;
         }
         return {};
@@ -525,34 +474,33 @@ public:
 class Schema : public CountedObject
 {
 public:
-    Schema( Counter& szCounter, common::Hash schemaHash )
-        : CountedObject( szCounter )
-        , m_schemaHash( schemaHash )
-    {
-    }
     using Ptr = std::shared_ptr< Schema >;
-
-    common::Hash m_schemaHash;
-
-    std::vector< Namespace::Ptr > m_namespaces;
-    std::vector< Stage::Ptr >     m_stages;
-    std::vector< Source::Ptr >    m_sources;
-
-    template < typename T >
-    class CountedObjectPairComparator
-    {
-    public:
-        bool operator()( T left, T right ) const
-        {
-            return ( left.first->getCounter() != right.first->getCounter() )
-                       ? ( left.first->getCounter() < right.first->getCounter() )
-                       : ( left.second->getCounter() < right.second->getCounter() );
-        }
-    };
 
     using ObjectPartPair   = std::pair< ObjectPart::Ptr, ObjectPart::Ptr >;
     using ObjectPartVector = std::vector< ObjectPart::Ptr >;
     using ConversionMap = std::map< ObjectPartPair, ObjectPartVector, CountedObjectPairComparator< ObjectPartPair > >;
+
+    Schema( common::Hash schemaHash )
+        : m_schemaHash( schemaHash )
+    {
+    }
+
+    const common::Hash& getHash() const { return m_schemaHash; }
+
+    template < typename T, typename... Args >
+    T* make( Args&&... args )
+    {
+        return m_factory.make< T, Args... >( std::forward< Args >( args )... );
+    }
+
+private:
+    common::Hash         m_schemaHash;
+    CountedObjectFactory m_factory;
+
+public:
+    std::vector< Namespace::Ptr > m_namespaces;
+    std::vector< Stage::Ptr >     m_stages;
+    std::vector< Source::Ptr >    m_sources;
 
     ConversionMap              m_conversions;
     ConversionMap              m_base_conversions;
@@ -579,11 +527,7 @@ inline std::string toOptional( const std::string& strType )
 class ValueType : public Type
 {
 public:
-    ValueType( Counter& szCounter )
-        : Type( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< ValueType >;
+    using Ptr = ValueType*;
     std::string m_cppType;
 
     virtual std::string getViewType( const std::string& /*strStageNamespace*/, bool bAsArg ) const
@@ -613,18 +557,14 @@ public:
 class RefType : public Type
 {
 public:
-    RefType( Counter& szCounter )
-        : Type( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< RefType >;
-    Object::Ptr m_object;
+    using Ptr = RefType*;
+    Object::Ptr m_object{};
 
     virtual std::string getViewType( const std::string& strStageNamespace, bool /*bAsArg*/ ) const
     {
         VERIFY_RTE( m_object );
         std::ostringstream os;
-        os << "::" << strStageNamespace << "::" << m_object->m_namespace.lock()->m_strFullName
+        os << "::" << strStageNamespace << "::" << m_object->m_namespace->m_strFullName
            << "::" << m_object->getIdentifier() << "*";
         return os.str();
     }
@@ -633,7 +573,7 @@ public:
         VERIFY_RTE( m_object );
 
         VERIFY_RTE_MSG( m_object->m_primaryObjectParts.size() == 1, "Ambiguous primary object part" );
-        auto pFile = m_object->m_primaryObjectParts.back()->m_file.lock();
+        auto pFile = m_object->m_primaryObjectParts.back()->m_file;
 
         std::ostringstream os;
         os << "data::Ptr< data::" << pFile->m_strName << "::" << m_object->getDataTypeName() << " >";
@@ -659,12 +599,8 @@ public:
 class OptType : public Type
 {
 public:
-    OptType( Counter& szCounter )
-        : Type( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< OptType >;
-    Type::Ptr m_underlyingType;
+    using Ptr = OptType*;
+    Type::Ptr m_underlyingType{};
 
     virtual std::string getViewType( const std::string& strStageNamespace, bool bAsArg ) const
     {
@@ -672,7 +608,7 @@ public:
         std::ostringstream os;
         os << "std::optional< " << m_underlyingType->getViewType( strStageNamespace, false ) << " >";
 
-        if( std::dynamic_pointer_cast< RefType >( m_underlyingType ) )
+        if( dynamic_cast< RefType::Ptr >( m_underlyingType ) )
         {
             return os.str();
         }
@@ -708,12 +644,8 @@ public:
 class ArrayType : public Type
 {
 public:
-    ArrayType( Counter& szCounter )
-        : Type( szCounter )
-    {
-    }
-    using Ptr = std::shared_ptr< ArrayType >;
-    Type::Ptr m_underlyingType;
+    using Ptr = ArrayType*;
+    Type::Ptr m_underlyingType{};
 
     virtual std::string getViewType( const std::string& strStageNamespace, bool bAsArg ) const
     {
@@ -721,7 +653,7 @@ public:
         std::ostringstream os;
         os << "std::vector< " << m_underlyingType->getViewType( strStageNamespace, false ) << " >";
 
-        if( std::dynamic_pointer_cast< RefType >( m_underlyingType ) )
+        if( dynamic_cast< RefType::Ptr >( m_underlyingType ) )
         {
             return os.str();
         }
@@ -759,15 +691,15 @@ class MapType : public Type
     bool m_bIsMultiMap = false;
 
 public:
-    MapType( Counter& szCounter, bool bIsMultiMap )
-        : Type( szCounter )
-        , m_bIsMultiMap( bIsMultiMap )
+    MapType( bool bIsMultiMap )
+        : m_bIsMultiMap( bIsMultiMap )
     {
     }
-    using Ptr = std::shared_ptr< MapType >;
-    Type::Ptr m_fromType;
-    Type::Ptr m_toType;
-    Type::Ptr m_predicate;
+    using Ptr = MapType*;
+
+    Type::Ptr m_fromType{};
+    Type::Ptr m_toType{};
+    Type::Ptr m_predicate{};
 
     virtual std::string getViewType( const std::string& strStageNamespace, bool bAsArg ) const
     {
@@ -786,7 +718,7 @@ public:
                << m_toType->getViewType( strStageNamespace, false ) << " >";
         }
 
-        if( std::dynamic_pointer_cast< RefType >( m_fromType ) || std::dynamic_pointer_cast< RefType >( m_toType ) )
+        if( dynamic_cast< RefType::Ptr >( m_fromType ) || dynamic_cast< RefType::Ptr >( m_toType ) )
         {
             return os.str();
         }
@@ -795,6 +727,7 @@ public:
             return bAsArg ? toConstRef( os.str() ) : os.str();
         }
     }
+
     virtual std::string getDatabaseType( DatabaseTypeFormat formatType ) const
     {
         VERIFY_RTE( m_fromType );
