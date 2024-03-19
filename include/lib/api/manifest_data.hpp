@@ -64,7 +64,7 @@ struct ManifestData
     }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "manifestFilePath", m_manifestFilePath );
         archive& boost::serialization::make_nvp( "megaSourceFiles", m_megaSourceFiles );

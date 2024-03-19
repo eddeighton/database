@@ -82,7 +82,7 @@ public:
     inline const PathArray&                  getIncludeDirectories() const { return m_includeDirectories; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "componentType", m_componentType );
         archive& boost::serialization::make_nvp( "name", m_strName );

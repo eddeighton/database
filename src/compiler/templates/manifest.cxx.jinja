@@ -78,6 +78,7 @@ namespace mega::io
 {% endif %}
 {% endfor %}
 
+{% if length( sources ) > 0 %}
         for ( const auto& componentInfo : componentInfos )
         {
             for ( const boost::filesystem::path& filePath : componentInfo.getSourceFiles() )
@@ -109,10 +110,14 @@ namespace mega::io
                     }
 {% endfor %}
                 }
+{% else %}
+                (void)filePath;
+                (void)srcDirectory;
 {% endif %}
 {% endfor %}
             }
         }
+{% endif %}
         initialiseLookupTables();
     }
 
@@ -147,7 +152,7 @@ namespace mega::io
                             std::make_pair( FileInfo::{{ dependency.stage }}_{{ dependency.name }}, fileInfo.getObjectSourceFilePath() ) );
                         VERIFY_RTE_MSG( iFind != m_fileTypeMap.end(), "Failed to locate compilation file of type: FileInfo::{{ dependency.stage }}_{{ dependency.name }} for source file: " <<
                              fileInfo.getObjectSourceFilePath().path().string() );
-                        m_dependencies[ fileInfo.getFileID() ].push_back( iFind->second->getFileID() );
+                        m_dependencies[ static_cast< std::size_t >( fileInfo.getFileID() ) ].push_back( iFind->second->getFileID() );
                     }
 {% endfor %}
                 }
@@ -196,7 +201,7 @@ namespace mega::io
             if( pLoadedFile ) return pLoadedFile;
         }
 
-        const FileInfo& fileInfo = m_compilationFileInfos[ fileID ];
+        const FileInfo& fileInfo = m_compilationFileInfos[ static_cast< std::size_t >( fileID ) ];
         File::Ptr pLoadedFile = std::make_shared< File >( environment, fileInfo, stage, fileStore );
         pLoadedFile->load( *this );
 
@@ -204,9 +209,9 @@ namespace mega::io
 
         loadedFiles.push_back( pLoadedFile );
 
-        for( ObjectInfo::FileID dependencyFileID : m_dependencies[ fileID ] )
+        for( ObjectInfo::FileID dependencyFileID : m_dependencies[ static_cast< std::size_t >( fileID ) ] )
         {
-            if( m_compilationFileInfos[ dependencyFileID ].getStage() < stage )
+            if( m_compilationFileInfos[ static_cast< std::size_t >( dependencyFileID ) ].getStage() < stage )
             {
                 loadFileImpl( environment, fileStore, stage, dependencyFileID, loadedFiles );
             }

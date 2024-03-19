@@ -38,7 +38,7 @@ namespace data
 
     class NullObjectPartLoader : public ObjectPartLoader
     {
-        virtual mega::io::Object* load( const mega::io::ObjectInfo& objectInfo )
+        virtual mega::io::Object* load( const mega::io::ObjectInfo& )
         {
             THROW_RTE( "load called on NullObjectPartLoader" );
         }

@@ -60,7 +60,7 @@ public:
     {
     }
 
-    Ptr( const Ptr& copy, const Ptr& copy2 )
+    Ptr( const Ptr& copy, const Ptr& )
         : m_pLoader( copy.m_pLoader )
         , m_pObjectInfo( copy.m_pObjectInfo )
         , m_pObjectPart( copy.m_pObjectPart )

@@ -78,8 +78,8 @@ public:
     Object*     getObject( ObjectInfo::Index objectIndex ) const
     {
         VERIFY_RTE( objectIndex >= 0 );
-        VERIFY_RTE( objectIndex < m_objects.size() );
-        return m_rawObjects[ objectIndex ];
+        VERIFY_RTE(  static_cast< std::size_t >( objectIndex ) < m_objects.size() );
+        return m_rawObjects[ static_cast< std::size_t >( objectIndex ) ];
     }
 
     FileInfo::Type             getType() const { return m_info.getFileType(); }

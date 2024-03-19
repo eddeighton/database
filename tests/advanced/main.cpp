@@ -40,7 +40,7 @@ void on_terminate()
     std::abort();
 }
 
-int inner_main(int argc, char* argv[])
+int inner_main(int argc, const char* argv[])
 {
     std::set_terminate( on_terminate );
 
@@ -80,7 +80,7 @@ int inner_main(int argc, char* argv[])
         std::cin >> c;
     }
 
-    std::size_t szResult = 0U;
+    int szResult = 0U;
 
     iRepeats = std::max< int >( 1, iRepeats );
 
@@ -128,7 +128,7 @@ int inner_main(int argc, char* argv[])
 	return szResult;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, const char* argv[])
 {
     try
     {

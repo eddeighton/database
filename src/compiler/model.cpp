@@ -193,7 +193,7 @@ std::string Interface::delimitTypeName( const std::string& strStageNamespace, co
     return os.str();
 }
 
-std::string Object::inheritanceGroupVariant( model::Stage::Ptr pStage ) const
+std::string Object::inheritanceGroupVariant( model::Stage::Ptr ) const
 {
     std::ostringstream os;
     os << "data::Variant";
@@ -220,6 +220,7 @@ std::string Object::inheritanceGroupVariant( model::Stage::Ptr pStage ) const
     os << " >";*/
     return os.str();
 }
+
 PrimaryObjectPart::Ptr Object::getPrimaryObjectPart( Stage::Ptr pStage )
 {
     VERIFY_RTE( !m_primaryObjectParts.empty() );
@@ -244,18 +245,18 @@ PrimaryObjectPart::Ptr Object::getPrimaryObjectPart( Stage::Ptr pStage )
 
     // determine if one of the primary object part stages has all others as a dependency
     std::vector< PrimaryObjectPart::Ptr > parts;
-    for( auto [ pPart, pStage ] : partStages )
+    for( auto [ pPart, pStagePart ] : partStages )
     {
         bool bHasOthersAsDependency = true;
         for( auto [ pPartOther, pStageOther ] : partStages )
         {
             if( pPart != pPartOther )
             {
-                if( pStage == pStageOther )
+                if( pStagePart == pStageOther )
                 {
                     THROW_RTE( "Unreachable - multiple primary object parts for object in same stage" );
                 }
-                else if( !pStage->isDependency( pStageOther ) )
+                else if( !pStagePart->isDependency( pStageOther ) )
                 {
                     bHasOthersAsDependency = false;
                     break;
@@ -577,8 +578,8 @@ struct StageElementVariantVisitor : boost::static_visitor< void >
 
 struct NamespaceVariantVisitor : boost::static_visitor< void >
 {
-    Namespace::Ptr pNamespace;
     Factory&       factory;
+    Namespace::Ptr pNamespace;
     NamespaceVariantVisitor( Factory& factory, Namespace::Ptr pNamespace )
         : factory( factory )
         , pNamespace( pNamespace )
@@ -798,8 +799,8 @@ Object::Ptr findType( const NameResolution& nameRes, Namespace::Ptr pNamespace,
 {
     Object::Ptr pResult{};
 
-    const U64 szDist = std::distance( i, iEnd );
-    if( szDist == 1U )
+    const auto szDist = std::distance( i, iEnd );
+    if( szDist == 1 )
     {
         for( Object::Ptr pObject : pNamespace->m_objects )
         {
@@ -810,7 +811,7 @@ Object::Ptr findType( const NameResolution& nameRes, Namespace::Ptr pNamespace,
             }
         }
     }
-    else if( szDist > 1U )
+    else if( szDist > 1 )
     {
         for( Namespace::Ptr pNestedNamespace : pNamespace->m_namespaces )
         {
@@ -848,8 +849,7 @@ Object::Ptr findType( Schema::Ptr pSchema, const NameResolution& nameRes )
     // search all global namespaces
     if( !pResult )
     {
-        const U64 szDist = std::distance( nameRes.id.begin(), nameRes.id.end() );
-        if( szDist > 1U )
+        if( std::distance( nameRes.id.begin(), nameRes.id.end() ) > 1 )
         {
             for( Namespace::Ptr pNamespace : pSchema->m_namespaces )
             {
@@ -1233,9 +1233,11 @@ void superTypes( Factory& factory )
                     }
                     std::sort( group.begin(), group.end(), CountedObjectComparator< Interface::Ptr >() );
 
-                    group.resize( std::distance(
+                    const auto dist = std::distance(
                         group.begin(),
-                        std::unique( group.begin(), group.end(), CountedObjectEquality< Interface::Ptr >() ) ) );
+                        std::unique( group.begin(), group.end(), CountedObjectEquality< Interface::Ptr >() ) );
+                    VERIFY_RTE( dist >= 0 );
+                    group.resize( static_cast< std::size_t >( dist ) );
                 }
 
                 bool bFound = false;
@@ -1254,13 +1256,15 @@ void superTypes( Factory& factory )
 
                         auto uniqueEndIter = std::unique(
                             existingGroup.begin(), existingGroup.end(), CountedObjectEquality< Interface::Ptr >() );
-                        existingGroup.resize( std::distance( existingGroup.begin(), uniqueEndIter ) );
+                        const auto dist = std::distance( existingGroup.begin(), uniqueEndIter );
+                        VERIFY_RTE( dist >= 0 );
+                        existingGroup.resize( static_cast< std::size_t >( dist ) );
 
                         {
                             std::set< Interface::Ptr, CountedObjectComparator< Interface::Ptr > > uniqueInterfaces;
-                            for( Interface::Ptr pInterface : existingGroup )
+                            for( Interface::Ptr pExistingInterface : existingGroup )
                             {
-                                uniqueInterfaces.insert( pInterface );
+                                uniqueInterfaces.insert( pExistingInterface );
                             }
                             VERIFY_RTE( uniqueInterfaces.size() == existingGroup.size() );
                         }
@@ -1277,9 +1281,9 @@ void superTypes( Factory& factory )
 
                     {
                         std::set< Interface::Ptr, CountedObjectComparator< Interface::Ptr > > uniqueInterfaces;
-                        for( Interface::Ptr pInterface : group )
+                        for( Interface::Ptr pGroupInterface : group )
                         {
-                            uniqueInterfaces.insert( pInterface );
+                            uniqueInterfaces.insert( pGroupInterface );
                         }
                         VERIFY_RTE( uniqueInterfaces.size() == group.size() );
                     }
@@ -1336,8 +1340,8 @@ void superTypes( Factory& factory )
             {
                 std::set< Interface::Ptr, CountedObjectComparator< Interface::Ptr > > open;
                 {
-                    for( Interface::Ptr pInterface : group )
-                        open.insert( pInterface );
+                    for( Interface::Ptr pGroupInterface : group )
+                        open.insert( pGroupInterface );
                 }
 
                 while( !open.empty() )
@@ -1370,12 +1374,12 @@ void superTypes( Factory& factory )
                 }
             }
 
-            for( Interface::Ptr pInterface : topological )
+            for( Interface::Ptr pTopoInterface : topological )
             {
-                if( pStage->m_interfaceTopologicalSet.count( pInterface ) == 0 )
+                if( pStage->m_interfaceTopologicalSet.count( pTopoInterface ) == 0 )
                 {
-                    pStage->m_interfaceTopologicalSet.insert( pInterface );
-                    pStage->m_interfaceTopological.push_back( pInterface );
+                    pStage->m_interfaceTopologicalSet.insert( pTopoInterface );
+                    pStage->m_interfaceTopological.push_back( pTopoInterface );
                 }
             }
         }

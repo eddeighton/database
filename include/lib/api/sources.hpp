@@ -45,7 +45,7 @@ public:
     bool operator<( const FilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "file_path", m_filePath );
     }
@@ -71,7 +71,7 @@ public:
     bool operator<( const SourceFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "source_file_path", m_filePath );
     }
@@ -93,7 +93,7 @@ public:
     bool operator<( const manifestFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "manifest_file_path", m_filePath );
     }
@@ -117,7 +117,7 @@ public:
     bool operator<( const megaFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "mega_file_path", m_filePath );
     }
@@ -141,7 +141,7 @@ public:
     bool operator<( const cppFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "cpp_file_path", m_filePath );
     }
@@ -165,7 +165,7 @@ public:
     bool operator<( const pyFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "py_file_path", m_filePath );
     }
@@ -189,7 +189,7 @@ public:
     bool operator<( const schFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "schematic_file_path", m_filePath );
     }
@@ -213,7 +213,7 @@ public:
     bool operator<( const BuildFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "build_file_path", m_filePath );
     }
@@ -236,7 +236,7 @@ public:
     bool operator<( const ComponentListingFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "component_listing_file_path", m_filePath );
     }
@@ -259,7 +259,7 @@ public:
     bool operator<( const CompilationFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "compilation_file_path", m_filePath );
     }
@@ -283,7 +283,7 @@ public:
     bool operator<( const GeneratedHPPSourceFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "generated_hxx_file_path", m_filePath );
     }
@@ -307,7 +307,7 @@ public:
     bool operator<( const GeneratedCPPSourceFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "generated_cxx_file_path", m_filePath );
     }
@@ -331,7 +331,7 @@ public:
     bool operator<( const PrecompiledHeaderFile& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "precompiled_header_file", m_filePath );
     }
@@ -355,7 +355,7 @@ public:
     bool operator<( const ObjectFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "cpp_object_file", m_filePath );
     }
@@ -379,7 +379,7 @@ public:
     bool operator<( const ComponentFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "component_file", m_filePath );
     }
@@ -402,7 +402,7 @@ public:
     bool operator<( const MapFilePath& cmp ) const { return m_filePath < cmp.m_filePath; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& boost::serialization::make_nvp( "map_file", m_filePath );
     }

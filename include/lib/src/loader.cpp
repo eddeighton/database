@@ -83,7 +83,7 @@ void Loader::postLoad( const Manifest& runtimeManifest )
     {
         szHighest = std::max( szHighest, fileInfo.getFileID() );
     }
-    fileIDLoadedToRuntime.resize( szHighest + 1, ObjectInfo::NO_FILE );
+    fileIDLoadedToRuntime.resize( static_cast< std::size_t >( szHighest + 1 ), ObjectInfo::NO_FILE );
 
     for( const FileInfo& fileInfo : loadedManifest.getCompilationFileInfos() )
     {
@@ -94,8 +94,9 @@ void Loader::postLoad( const Manifest& runtimeManifest )
             {
                 VERIFY_RTE( fileInfo.getFileID() != ObjectInfo::NO_FILE );
                 VERIFY_RTE( runtimeFileInfo.getFileID() != ObjectInfo::NO_FILE );
-                fileIDLoadedToRuntime[ fileInfo.getFileID() ] = runtimeFileInfo.getFileID();
-                bFound                                        = true;
+                fileIDLoadedToRuntime[ static_cast< std::size_t >( fileInfo.getFileID() ) ]
+                    = runtimeFileInfo.getFileID();
+                bFound = true;
                 break;
             }
         }
@@ -107,8 +108,9 @@ void Loader::postLoad( const Manifest& runtimeManifest )
     {
         const ObjectInfo::FileID storedFileID = pObjectInfo->getFileID();
         VERIFY_RTE_MSG( storedFileID != ObjectInfo::NO_FILE, "File ID of NO_FILE" );
-        VERIFY_RTE_MSG( storedFileID < fileIDLoadedToRuntime.size(), "Invalid File ID: " << storedFileID );
-        const ObjectInfo::FileID mappedFileID = fileIDLoadedToRuntime[ storedFileID ];
+        VERIFY_RTE_MSG( storedFileID < static_cast< ObjectInfo::FileID >( fileIDLoadedToRuntime.size() ),
+                        "Invalid File ID: " << storedFileID );
+        const ObjectInfo::FileID mappedFileID = fileIDLoadedToRuntime[ static_cast< std::size_t >( storedFileID ) ];
         VERIFY_RTE_MSG( mappedFileID != ObjectInfo::NO_FILE, "File ID failed to map" );
         pObjectInfo->setFileID( mappedFileID );
     }

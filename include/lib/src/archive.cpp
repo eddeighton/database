@@ -72,17 +72,19 @@ std::streamsize eds_copy( Source& src, Sink& snk,
 namespace mega::io
 {
 
+using FileOffset = int;
+
 struct TableOfContents
 {
     struct File
     {
-        using PositionType = std::size_t;
+        using PositionType = FileOffset;
 
         File::PositionType m_start, m_length;
         std::string        m_id;
 
         template < class Archive >
-        inline void serialize( Archive& archive, const unsigned int version )
+        inline void serialize( Archive& archive, const unsigned int )
         {
             archive& m_start;
             archive& m_length;
@@ -95,7 +97,7 @@ struct TableOfContents
     FileVector m_buildFiles;
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& m_sourceFiles;
         archive& m_buildFiles;
@@ -103,7 +105,7 @@ struct TableOfContents
 
     const File& getSourceFile( const std::string& strID ) const
     {
-        for( FileVector::const_iterator i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
+        for( auto i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
         {
             if( i->m_id == strID )
                 return *i;
@@ -113,7 +115,7 @@ struct TableOfContents
 
     const File& getBuildFile( const std::string& strID ) const
     {
-        for( FileVector::const_iterator i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
+        for( auto i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
         {
             if( i->m_id == strID )
                 return *i;
@@ -123,7 +125,7 @@ struct TableOfContents
 
     bool existsSourceFile( const std::string& strID ) const
     {
-        for( FileVector::const_iterator i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
+        for( auto i = m_sourceFiles.begin(), iEnd = m_sourceFiles.end(); i != iEnd; ++i )
         {
             if( i->m_id == strID )
                 return true;
@@ -133,7 +135,7 @@ struct TableOfContents
 
     bool existsBuildFile( const std::string& strID ) const
     {
-        for( FileVector::const_iterator i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
+        for( auto i = m_buildFiles.begin(), iEnd = m_buildFiles.end(); i != iEnd; ++i )
         {
             if( i->m_id == strID )
                 return true;
@@ -151,7 +153,7 @@ struct ReadArchive::Pimpl
     {
         std::unique_ptr< MappedSourceType > m_pSource;
 
-        StreamImpl( std::unique_ptr< MappedSourceType > pSource, std::size_t szOffset )
+        StreamImpl( std::unique_ptr< MappedSourceType > pSource, FileOffset szOffset )
             : boost::iostreams::stream< MappedSourceType >( *pSource )
             , m_pSource( std::move( pSource ) )
         {
@@ -162,19 +164,19 @@ struct ReadArchive::Pimpl
                                                                const TableOfContents::File&   file )
         {
             std::unique_ptr< MappedSourceType > pMappedFile;
-            std::size_t                         szOffset = 0U;
+            FileOffset                          szOffset = 0;
             try
             {
-                const std::size_t szAlignment = MappedSourceType::alignment();
+                const FileOffset szAlignment = MappedSourceType::alignment();
 
                 // ensure the mapping starts at alignment boundary
-                const std::size_t szStart = file.m_start - file.m_start % szAlignment;
+                const FileOffset szStart = file.m_start - file.m_start % szAlignment;
 
                 // record the addition offset from szStart where the embeded file starts
                 szOffset = file.m_start - szStart;
 
                 // also ensure the length accounts for the offset
-                const std::size_t szLength = file.m_length + szOffset;
+                const FileOffset szLength = file.m_length + szOffset;
 
                 pMappedFile = std::make_unique< MappedSourceType >( filePath, szLength, szStart );
             }
@@ -191,8 +193,8 @@ struct ReadArchive::Pimpl
     using SourceType = boost::iostreams::basic_file_source< char >;
     using StreamType = boost::iostreams::stream< SourceType >;
 
-    Pimpl( const boost::filesystem::path& filePath )
-        : m_filePath( filePath )
+    Pimpl( boost::filesystem::path filePath )
+        : m_filePath( std::move( filePath ) )
     {
         VERIFY_RTE_MSG(
             boost::filesystem::exists( m_filePath ), "Failed to locate archive file: " << m_filePath.string() );
@@ -318,11 +320,11 @@ void ReadArchive::compile_archive( const boost::filesystem::path& filePath, cons
     {
         file.m_start = StreamPos()( ofStream );
         {
-            const boost::filesystem::path  filePath   = srcDir / file.m_id;
-            const std::size_t              szFileSize = boost::filesystem::file_size( filePath );
-            ReadArchive::Pimpl::SourceType fileSource( filePath.string(), std::ios::binary | std::ios::in );
+            const boost::filesystem::path  srcFilePath = srcDir / file.m_id;
+            const std::size_t              szFileSize  = boost::filesystem::file_size( srcFilePath );
+            ReadArchive::Pimpl::SourceType fileSource( srcFilePath.string(), std::ios::binary | std::ios::in );
             ReadArchive::Pimpl::StreamType istream( fileSource );
-            boost::iostreams::eds_copy( istream, ofStream, szFileSize );
+            boost::iostreams::eds_copy( istream, ofStream, static_cast< std::streamsize >( szFileSize ) );
         }
         file.m_length = StreamPos()( ofStream ) - file.m_start;
     }
@@ -331,11 +333,11 @@ void ReadArchive::compile_archive( const boost::filesystem::path& filePath, cons
     {
         file.m_start = StreamPos()( ofStream );
         {
-            const boost::filesystem::path  filePath   = buildDir / file.m_id;
-            const std::size_t              szFileSize = boost::filesystem::file_size( filePath );
-            ReadArchive::Pimpl::SourceType fileSource( filePath.string(), std::ios::binary | std::ios::in );
+            const boost::filesystem::path  srcFilePath = buildDir / file.m_id;
+            const std::size_t              szFileSize  = boost::filesystem::file_size( srcFilePath );
+            ReadArchive::Pimpl::SourceType fileSource( srcFilePath.string(), std::ios::binary | std::ios::in );
             ReadArchive::Pimpl::StreamType istream( fileSource );
-            boost::iostreams::eds_copy( istream, ofStream, szFileSize );
+            boost::iostreams::eds_copy( istream, ofStream, static_cast< std::streamsize >( szFileSize ) );
         }
         file.m_length = StreamPos()( ofStream ) - file.m_start;
     }

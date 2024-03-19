@@ -45,7 +45,7 @@ public:
     std::size_t getManifestHashCode() const { return m_manifestHashCode; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& m_versionHashCode;
         archive& m_manifestHashCode;

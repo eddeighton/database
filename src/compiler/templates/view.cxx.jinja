@@ -56,7 +56,7 @@ public:
     virtual ~SuperTypeBase() = default;
 };
 
-class SuperFactory;
+struct SuperFactory;
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ struct SuperFactory
         {
             TSuper* pSuper = dynamic_cast< TSuper* >( iFind->second.get() );
             VERIFY_RTE( pSuper );
-            TView* pView = {{ stage.name }}::db_cast< TView >( pSuper );
+            {{ stage.name }}::db_cast< TView >( pSuper );
             return pSuper;
         }
         else
@@ -154,7 +154,7 @@ struct SuperFactory
 
 // conversion generics
 template< typename TFromView >
-inline data::Ptr< typename traits< TFromView >::DataType > toData( SuperFactory& factory, TFromView* pFrom )
+inline data::Ptr< typename traits< TFromView >::DataType > toData( SuperFactory&, TFromView* pFrom )
 {
     using TToData = typename traits< TFromView >::DataType;
     using SuperType   = typename traits< TToData >::SuperType;
@@ -385,6 +385,7 @@ inline std::multimap< typename traits< TKeyFromData >::ViewType*, typename trait
     :   m_factory( factory ),
         m_data( data )
 {
+    (void)m_factory;
 }
 void {{ stype.name }}::reconstruct( const data::Ptr< data::{{ interface.part }} >& data )
 {

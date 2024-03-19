@@ -48,17 +48,19 @@ void File::preload( Loader& loader )
         objectInfo = ObjectInfo( objectInfo.getType(), getFileID(), objectInfo.getIndex() );
 
         // test the stored index is valid
-        VERIFY_RTE( objectInfo.getIndex() < m_rawObjects.size() );
+        VERIFY_RTE( objectInfo.getIndex() >= 0 );
+        const auto szIndex = static_cast< std::size_t >( objectInfo.getIndex() );
+        VERIFY_RTE( szIndex < m_rawObjects.size() );
 
         // test the object NOT already created
-        Object* pObject = m_rawObjects[ objectInfo.getIndex() ];
+        Object* pObject = m_rawObjects[ szIndex ];
         VERIFY_RTE( !pObject );
 
         // create the object
         pObject = data::Factory::create( m_objectLoader, objectInfo );
 
-        m_rawObjects[ objectInfo.getIndex() ] = pObject;
-        m_objects[ objectInfo.getIndex() ].reset( pObject );
+        m_rawObjects[ szIndex ] = pObject;
+        m_objects[ szIndex ].reset( pObject );
     }
 }
 

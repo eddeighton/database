@@ -55,7 +55,7 @@ public:
     void setFileID( FileID fileID ) { m_fileID = fileID; }
 
     template < class Archive >
-    inline void serialize( Archive& archive, const unsigned int version )
+    inline void serialize( Archive& archive, const unsigned int )
     {
         archive& m_type;
         archive& m_fileID;

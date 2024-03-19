@@ -49,12 +49,12 @@ enable_testing()
 
 add_executable( db_tests ${DB_UNIT_TESTS} ${DB_UNIT_TESTS_DIR}/main_test_runner.cpp )
 
-IF( ${WIN32} )
-target_compile_options( db_tests PUBLIC "/await:strict" )
-target_compile_options( db_tests PRIVATE "/bigobj" )
-ELSE( ${WIN32} )
-target_compile_options( db_tests PUBLIC "-fcoroutines" )
-ENDIF( ${WIN32} )
+#IF( ${WIN32} )
+#target_compile_options( db_tests PUBLIC "/await:strict" )
+#target_compile_options( db_tests PRIVATE "/bigobj" )
+#ELSE( ${WIN32} )
+#target_compile_options( db_tests PUBLIC "-fcoroutines" )
+#ENDIF( ${WIN32} )
 
 target_compile_definitions( db_tests PUBLIC -DBOOST_PHOENIX_STL_TUPLE_H_ )
 

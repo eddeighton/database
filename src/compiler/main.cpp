@@ -185,7 +185,6 @@ void stash( const boost::filesystem::path& outputAPIFolderPath, const boost::fil
 int main( int argc, const char* argv[] )
 {
     namespace po = boost::program_options;
-    po::variables_map vm;
     try
     {
         bool bHelp        = false;

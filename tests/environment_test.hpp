@@ -31,7 +31,7 @@
 namespace mega::io
 {
 
-template< class TBaseEnvironment >
+template < class TBaseEnvironment >
 class TestEnvironment : public TBaseEnvironment
 {
 protected:
@@ -96,17 +96,14 @@ public:
         }
     }
 
-    bool exists( const BuildFilePath& filePath ) const override
-    {
-        return true;
-    }
+    bool exists( const BuildFilePath& ) const override { return true; }
 
     std::unique_ptr< std::istream > read( const BuildFilePath& filePath ) const override
     {
         return boost::filesystem::createBinaryInputFileStream( toPath( filePath ) );
     }
     std::unique_ptr< std::ostream > write_temp( const BuildFilePath&     filePath,
-                                                                boost::filesystem::path& tempFilePath ) const override
+                                                boost::filesystem::path& tempFilePath ) const override
     {
         tempFilePath = m_tempDir / filePath.path();
         return boost::filesystem::createBinaryOutputFileStream( tempFilePath );
@@ -121,7 +118,7 @@ public:
         return boost::filesystem::createBinaryInputFileStream( toPath( filePath ) );
     }
     std::unique_ptr< std::ostream > write_temp( const SourceFilePath&    filePath,
-                                                                boost::filesystem::path& tempFilePath ) const override
+                                                boost::filesystem::path& tempFilePath ) const override
     {
         tempFilePath = m_tempDir / filePath.path();
         return boost::filesystem::createBinaryOutputFileStream( tempFilePath );
@@ -130,7 +127,6 @@ public:
     {
         copyToTargetPath( m_tempDir / filePath.path(), toPath( filePath ) );
     }
-
 };
 
 } // namespace mega::io

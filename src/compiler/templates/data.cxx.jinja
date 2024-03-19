@@ -50,6 +50,7 @@ namespace {{ file.name }}
 {% endif %}
 {% endfor %}{#part.property#}
     {
+        (void) loader;
     }
 {% if length(part.initialisations) %}
     {{ part.name }}::{{ part.name }}( ObjectPartLoader& loader, const mega::io::ObjectInfo& objectInfo{% for property in part.initialisations %}, {{ property.argtype }} {{ property.name }}{% endfor %} )
@@ -66,6 +67,7 @@ namespace {{ file.name }}
           , {{ property.name }}( {{ property.name }} )
 {% endfor %}{#part.property#}
     {
+        (void) loader;
     }
 {% endif %}{# length(part.initialisations) #}
     bool {{ part.name }}::test_inheritance_pointer( ObjectPartLoader &loader ) const
@@ -73,6 +75,7 @@ namespace {{ file.name }}
 {% if part.has_inheritance %}
         return m_inheritance == {{ part.inheritance_variant }}{ data::Ptr< data::{{ file.name }}::{{ part.name }} >( loader, const_cast< {{ part.name }}* >( this ) ) };
 {% else %}
+        (void)loader;
         return false;
 {% endif %} 
     }

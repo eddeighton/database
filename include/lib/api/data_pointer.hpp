@@ -91,7 +91,7 @@ public:
         VERIFY_RTE( m_pLoader );
     }
 
-    Ptr( const Ptr& copy, const Ptr& copy2 )
+    Ptr( const Ptr& copy, const Ptr& )
         : m_pLoader( copy.m_pLoader )
         , m_pObjectInfo( copy.m_pObjectInfo )
         , m_pObjectPart( copy.m_pObjectPart )
@@ -133,7 +133,7 @@ public:
     inline bool operator==( const Ptr& cmp ) const { return getObjectInfo() == cmp.getObjectInfo(); }
 
     template < typename Archive >
-    void save( Archive& ar, const unsigned int version ) const
+    void save( Archive& ar, const unsigned int ) const
     {
         ASSERT( m_pObjectInfo.get() );
         ar&* m_pObjectInfo;
@@ -143,7 +143,7 @@ public:
     }
 
     template < typename Archive >
-    void load( Archive& ar, const unsigned int version )
+    void load( Archive& ar, const unsigned int )
     {
         ar&* m_pObjectInfo;
 

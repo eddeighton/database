@@ -68,18 +68,18 @@ namespace {{ file.name }}
         {
             Object_Part_Type_ID = {{ part.typeID }}
         };
-{% for property in part.properties %}
-        {{ property.type }} {{ property.name }};
-{% endfor %}{#part.property#}
+{% if part.has_inheritance %}
+        {{ part.inheritance_variant }} m_inheritance;
+{% endif %}
 {% for pointer in part.data_pointers %}
         Ptr< {{ pointer.typename }} > {{ pointer.longname }};
 {% endfor %}{#part.data_pointers#}
 {% for pointer in part.raw_pointers %}
         Ptr< {{ pointer.typename }} > {{ pointer.longname }};
 {% endfor %}{#part.raw_pointers#}
-{% if part.has_inheritance %}
-        {{ part.inheritance_variant }} m_inheritance;
-{% endif %}
+{% for property in part.properties %}
+        {{ property.type }} {{ property.name }};
+{% endfor %}{#part.property#}
         virtual bool test_inheritance_pointer( ObjectPartLoader &loader ) const;
         virtual void set_inheritance_pointer();
         virtual void load( mega::io::Loader& loader );
