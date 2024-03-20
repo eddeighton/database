@@ -23,6 +23,15 @@ project( db VERSION 1.1 LANGUAGES CXX )
 
 include( ${WORKSPACE_ROOT_PATH}/src/env/src/common_settings.cmake )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+add_compile_options("-Wno-unused-function")
+
+endif()
+
+
 #setup some common directories from the root of the project
 set( CMAKE_PARENT_PATH ${CMAKE_CURRENT_LIST_DIR}/.. )
 find_path( DB_ROOT_DIR NAMES include PATHS ${CMAKE_PARENT_PATH} REQUIRED NO_DEFAULT_PATH )

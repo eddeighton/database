@@ -53,7 +53,7 @@ namespace {{ file.name }}
         (void) loader;
     }
 {% if length(part.initialisations) %}
-    {{ part.name }}::{{ part.name }}( ObjectPartLoader& loader, const mega::io::ObjectInfo& objectInfo{% for property in part.initialisations %}, {{ property.argtype }} {{ property.name }}{% endfor %} )
+    {{ part.name }}::{{ part.name }}( ObjectPartLoader& loader, const mega::io::ObjectInfo& objectInfo{% for property in part.initialisations %}, {{ property.argtype }} _{{ property.name }}{% endfor %} )
         :   mega::io::Object( objectInfo ){% if part.has_inheritance %}, m_inheritance( data::Ptr< data::{{ file.name }}::{{ part.name }} >( loader, this ) ){% endif %}
 {% for pointer in part.data_pointers %}
 {% if pointer.no_ctor_arg %}
@@ -64,7 +64,7 @@ namespace {{ file.name }}
           , {{ pointer.longname }}( loader )
 {% endfor %}{#part.pointers#}
 {% for property in part.initialisations %}
-          , {{ property.name }}( {{ property.name }} )
+          , {{ property.name }}( _{{ property.name }} )
 {% endfor %}{#part.property#}
     {
         (void) loader;

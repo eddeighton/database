@@ -33,18 +33,18 @@ template < typename Iterator >
 struct Range
 {
     using iterator_type = Iterator;
-    Iterator _begin, _end;
+    Iterator m_begin, m_end;
 
     Range( Iterator _begin, Iterator _end )
-        : _begin( _begin )
-        , _end( _end )
+        : m_begin( _begin )
+        , m_end( _end )
     {
     }
     
-    Iterator begin() const { return _begin; }
-    Iterator end() const { return _end; }
+    Iterator begin() const { return m_begin; }
+    Iterator end() const { return m_end; }
 
-    bool operator==( const Range& cmp ) const { return ( _begin == cmp._begin ) && ( _end == cmp._end ); }
+    bool operator==( const Range& cmp ) const { return ( m_begin == cmp.m_begin ) && ( m_end == cmp.m_end ); }
 };
 
 } // namespace mega::io

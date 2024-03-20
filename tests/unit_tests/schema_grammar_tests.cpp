@@ -17,7 +17,6 @@
 //  NEGLIGENCE) OR STRICT LIABILITY, EVEN IF COPYRIGHT OWNERS ARE ADVISED
 //  OF THE POSSIBILITY OF SUCH DAMAGES.
 
-
 #include "compiler/grammar.hpp"
 
 #include <gtest/gtest-param-test.h>
@@ -35,14 +34,15 @@ protected:
 
 TEST_P( IdentifierAccept, Basic )
 {
-    std::string            str    = GetParam();
-    db::schema::Identifier result = db::schema::parse< db::schema::Identifier >( str );
-    ASSERT_EQ( result, str );
+    std::string            s      = GetParam();
+    db::schema::Identifier result = db::schema::parse< db::schema::Identifier >( s );
+    ASSERT_EQ( result, s );
 }
 
-INSTANTIATE_TEST_SUITE_P( Identifier_Accept,
-                          IdentifierAccept,
-                          ::testing::Values( "a", "B", "a1", "m_1", "TheQuickBrownFoxJumpedOverTheLazyDoc1234567890" ) );
+INSTANTIATE_TEST_SUITE_P(
+    Identifier_Accept,
+    IdentifierAccept,
+    ::testing::Values( "a", "B", "a1", "m_1", "TheQuickBrownFoxJumpedOverTheLazyDoc1234567890" ) );
 
 // IdentifierReject
 class IdentifierReject : public ::testing::TestWithParam< std::string >
@@ -59,9 +59,10 @@ TEST_P( IdentifierReject, Basic )
     ASSERT_FALSE( result.bSuccess );
 }
 
-INSTANTIATE_TEST_SUITE_P( Identifier_Reject,
-                          IdentifierReject,
-                          ::testing::Values( "1", "_", "&", "!", "£", "$", "%", "^", "&", ",", "(", ")", "123_", "=123=" ) );
+INSTANTIATE_TEST_SUITE_P(
+    Identifier_Reject,
+    IdentifierReject,
+    ::testing::Values( "1", "_", "&", "!", "£", "$", "%", "^", "&", ",", "(", ")", "123_", "=123=" ) );
 
 // IdentifierListAccept
 class IdentifierListAccept : public ::testing::TestWithParam< std::string >
@@ -72,14 +73,16 @@ protected:
 
 TEST_P( IdentifierListAccept, Basic )
 {
-    std::string                str    = GetParam();
-    db::schema::IdentifierList result = db::schema::parse< db::schema::IdentifierList >( str );
+    std::string                s      = GetParam();
+    db::schema::IdentifierList result = db::schema::parse< db::schema::IdentifierList >( s );
     std::ostringstream         os;
     os << result;
-    ASSERT_EQ( os.str(), str );
+    ASSERT_EQ( os.str(), s );
 }
 
-INSTANTIATE_TEST_SUITE_P( IdentifierList_Accept, IdentifierListAccept, ::testing::Values( "a", "a::b", "abc::def::efg" ) );
+INSTANTIATE_TEST_SUITE_P( IdentifierList_Accept,
+                          IdentifierListAccept,
+                          ::testing::Values( "a", "a::b", "abc::def::efg" ) );
 
 // TypeAccept
 class TypeAccept : public ::testing::TestWithParam< std::string >
@@ -97,7 +100,9 @@ TEST_P( TypeAccept, Basic )
     ASSERT_TRUE( result.bSuccess );
 }
 
-INSTANTIATE_TEST_SUITE_P( Type_Accept, TypeAccept, ::testing::Values( "a", "a< b::c >", "a::b< b, c, d >", "a< b< e >, c< f, g >, d >" ) );
+INSTANTIATE_TEST_SUITE_P( Type_Accept,
+                          TypeAccept,
+                          ::testing::Values( "a", "a< b::c >", "a::b< b, c, d >", "a< b< e >, c< f, g >, d >" ) );
 
 // TypeReject
 class TypeReject : public ::testing::TestWithParam< std::string >

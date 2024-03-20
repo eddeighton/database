@@ -770,7 +770,7 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
         {
             auto pFrom = pMap->m_fromType;
             auto pTo   = pMap->m_toType;
-            if( auto pFromValue = dynamic_cast< model::ValueType::Ptr >( pFrom ) )
+            if( dynamic_cast< model::ValueType::Ptr >( pFrom ) )
             {
                 if( dynamic_cast< model::ValueType::Ptr >( pTo ) )
                 {
@@ -816,7 +816,7 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
         {
             osFunctionBody << "data = value;";
         }
-        else if( auto pRef = dynamic_cast< model::RefType::Ptr >( pType ) )
+        else if( dynamic_cast< model::RefType::Ptr >( pType ) )
         {
             osFunctionBody << "data = toData( m_factory, value );\n";
         }
@@ -827,7 +827,7 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
             {
                 osFunctionBody << "data = value;";
             }
-            else if( auto pUnderlyingRef = dynamic_cast< model::RefType::Ptr >( pUnderlyingType ) )
+            else if( dynamic_cast< model::RefType::Ptr >( pUnderlyingType ) )
             {
                 osFunctionBody << "data = toData( m_factory, value );\n";
             }
@@ -843,7 +843,7 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
             {
                 osFunctionBody << "data = value;";
             }
-            else if( auto pUnderlyingRef = dynamic_cast< model::RefType::Ptr >( pUnderlyingType ) )
+            else if( dynamic_cast< model::RefType::Ptr >( pUnderlyingType ) )
             {
                 osFunctionBody << "data = toData( m_factory, value );\n";
             }
@@ -862,7 +862,7 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
                 {
                     osFunctionBody << "data = value;";
                 }
-                else if( auto pToRef = dynamic_cast< model::RefType::Ptr >( pTo ) )
+                else if( dynamic_cast< model::RefType::Ptr >( pTo ) )
                 {
                     osFunctionBody << "data = toData( m_factory, value );\n";
                 }
@@ -905,11 +905,11 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
                 osFunctionBody << "if( !data.has_value() ) data = "
                                << pArray->getDatabaseType( model::Type::eNormal_NoLate ) << "();\n";
             auto pUnderlyingType = pArray->m_underlyingType;
-            if( auto pValue = dynamic_cast< model::ValueType::Ptr >( pUnderlyingType ) )
+            if( dynamic_cast< model::ValueType::Ptr >( pUnderlyingType ) )
             {
                 osFunctionBody << strData << ".push_back( value );";
             }
-            else if( auto pRef = dynamic_cast< model::RefType::Ptr >( pUnderlyingType ) )
+            else if( dynamic_cast< model::RefType::Ptr >( pUnderlyingType ) )
             {
                 osFunctionBody << strData << ".push_back( toData( m_factory, value ) );";
             }
@@ -925,13 +925,13 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
                                << pMap->getDatabaseType( model::Type::eNormal_NoLate ) << "();\n";
             auto pFrom = pMap->m_fromType;
             auto pTo   = pMap->m_toType;
-            if( auto pFromValue = dynamic_cast< model::ValueType::Ptr >( pFrom ) )
+            if( dynamic_cast< model::ValueType::Ptr >( pFrom ) )
             {
-                if( auto pToValue = dynamic_cast< model::ValueType::Ptr >( pTo ) )
+                if( dynamic_cast< model::ValueType::Ptr >( pTo ) )
                 {
                     osFunctionBody << strData << ".insert( std::make_pair( key, value ) );";
                 }
-                else if( auto pToRef = dynamic_cast< model::RefType::Ptr >( pTo ) )
+                else if( dynamic_cast< model::RefType::Ptr >( pTo ) )
                 {
                     osFunctionBody << strData << ".insert( std::make_pair( key, toData( m_factory, value ) ) );";
                 }
@@ -940,13 +940,13 @@ nlohmann::json writeFunctionBody( model::Stage::Ptr pStage, model::Function::Ptr
                     THROW_RTE( "Unsupported type for map from type" );
                 }
             }
-            else if( auto pFromRef = dynamic_cast< model::RefType::Ptr >( pFrom ) )
+            else if( dynamic_cast< model::RefType::Ptr >( pFrom ) )
             {
-                if( auto pToValue = dynamic_cast< model::ValueType::Ptr >( pTo ) )
+                if( dynamic_cast< model::ValueType::Ptr >( pTo ) )
                 {
                     osFunctionBody << strData << ".insert( std::make_pair( toData( m_factory, key ), value ) );";
                 }
-                else if( auto pToRef = dynamic_cast< model::RefType::Ptr >( pTo ) )
+                else if( dynamic_cast< model::RefType::Ptr >( pTo ) )
                 {
                     osFunctionBody << strData
                                    << ".insert( std::make_pair( toData( m_factory, key ), toData( m_factory, value ) ) "

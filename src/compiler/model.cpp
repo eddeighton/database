@@ -103,11 +103,11 @@ std::string FunctionInserter::getShortName() const
 {
     std::ostringstream os;
     model::Type::Ptr   pType = m_property->m_type;
-    if( model::ArrayType::Ptr pArray = dynamic_cast< model::ArrayType::Ptr >( pType ) )
+    if( dynamic_cast< model::ArrayType::Ptr >( pType ) )
     {
         os << "push_back_" << m_property->m_strName;
     }
-    else if( model::MapType::Ptr pMap = dynamic_cast< model::MapType::Ptr >( pType ) )
+    else if( dynamic_cast< model::MapType::Ptr >( pType ) )
     {
         os << "insert_" << m_property->m_strName;
     }
@@ -141,11 +141,11 @@ std::string FunctionInserter::getLongName() const
 {
     std::ostringstream os;
     model::Type::Ptr   pType = m_property->m_type;
-    if( model::ArrayType::Ptr pArray = dynamic_cast< model::ArrayType::Ptr >( pType ) )
+    if( dynamic_cast< model::ArrayType::Ptr >( pType ) )
     {
         os << m_interface->delimitTypeName( "", "_" ) << "_push_back_" << m_property->m_strName;
     }
-    else if( model::MapType::Ptr pMap = dynamic_cast< model::MapType::Ptr >( pType ) )
+    else if( dynamic_cast< model::MapType::Ptr >( pType ) )
     {
         os << m_interface->delimitTypeName( "", "_" ) << "_insert_" << m_property->m_strName;
     }
@@ -163,12 +163,12 @@ Function::ParamVector FunctionInserter::getParams( const std::string& strStageNa
     Function::ParamVector parameters;
 
     model::Type::Ptr pType = m_property->m_type;
-    if( model::ArrayType::Ptr pArray = dynamic_cast< model::ArrayType::Ptr >( pType ) )
+    if( auto pArray = dynamic_cast< model::ArrayType::Ptr >( pType ) )
     {
         parameters.push_back(
             Function::Param{ pArray->m_underlyingType->getViewType( strStageNamespace, true ), "value"s } );
     }
-    else if( model::MapType::Ptr pMap = dynamic_cast< model::MapType::Ptr >( pType ) )
+    else if( auto pMap = dynamic_cast< model::MapType::Ptr >( pType ) )
     {
         parameters.push_back( Function::Param{ pMap->m_fromType->getViewType( strStageNamespace, true ), "key"s } );
         parameters.push_back( Function::Param{ pMap->m_toType->getViewType( strStageNamespace, true ), "value"s } );
@@ -513,9 +513,9 @@ struct StageElementVariantVisitor : boost::static_visitor< void >
 
     Stage::Ptr pStage{};
 
-    StageElementVariantVisitor( Factory& factory, Stage::Ptr pStage )
-        : factory( factory )
-        , pStage( pStage )
+    StageElementVariantVisitor( Factory& _factory, Stage::Ptr _pStage )
+        : factory( _factory )
+        , pStage( _pStage )
     {
     }
     void operator()( const schema::File& file ) const
@@ -580,9 +580,9 @@ struct NamespaceVariantVisitor : boost::static_visitor< void >
 {
     Factory&       factory;
     Namespace::Ptr pNamespace;
-    NamespaceVariantVisitor( Factory& factory, Namespace::Ptr pNamespace )
-        : factory( factory )
-        , pNamespace( pNamespace )
+    NamespaceVariantVisitor( Factory& _factory, Namespace::Ptr _pNamespace )
+        : factory( _factory )
+        , pNamespace( _pNamespace )
     {
     }
     void operator()( const schema::Namespace& namespace_ ) const
@@ -734,8 +734,8 @@ struct SchemaVariantVisitor : boost::static_visitor< void >
 {
     Factory& factory;
 
-    SchemaVariantVisitor( Factory& factory )
-        : factory( factory )
+    SchemaVariantVisitor( Factory& _factory )
+        : factory( _factory )
     {
     }
 
