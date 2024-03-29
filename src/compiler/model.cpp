@@ -909,7 +909,7 @@ void stageInterfaces( Factory& factory )
     while( !open_stages.empty() )
     {
         // attempt to find stage with no open dependencies
-        Stage::Ptr pStage;
+        Stage::Ptr pStage = [&]() -> Stage::Ptr
         {
             for( Stage::Ptr pStageIter : open_stages )
             {
@@ -924,13 +924,13 @@ void stageInterfaces( Factory& factory )
                 }
                 if( !bFoundOpenDependency )
                 {
-                    pStage = pStageIter;
-                    open_stages.erase( pStage );
-                    break;
+                    auto pStageTemp = pStageIter;
+                    open_stages.erase( pStageTemp );
+                    return pStageTemp;
                 }
             }
-            VERIFY_RTE_MSG( pStage, "Cyclic dependency in stage dependencies" );
-        }
+            THROW_RTE( "Cyclic dependency in stage dependencies" );
+        }();
 
         // collect the new accumulation parts
         ObjectPartMap objectParts;
